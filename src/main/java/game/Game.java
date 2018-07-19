@@ -13,10 +13,13 @@ public class Game {
 	// List of all turns (1-32)
 	private List<Turn> _turns;
 	
+	private Deck _deck;
+	
 	public Game( GameType type ) {
 		_type = type;
 		_turns = new ArrayList<>();
 		_currentTurn = (_type == GameType.FIRST_WAVES || _type == GameType.FULL)? 0: 16;
+		_deck = new Deck();
 	}
 	
 	public GameType getType(){ return _type; }
@@ -32,4 +35,6 @@ public class Game {
 		_currentTurn += 1;
 		return getCurrentTurn();
 	}
+	
+	public Deck getDeck(){ return _deck; }
 }
