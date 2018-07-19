@@ -1,13 +1,18 @@
 package ddob.game;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class Unit {
 	private Allegiance _allegiance;
 	private String _designation;
+	private UnitType _type;
 	private List<UnitState> _states;
 	private int _unitStateIndex;
 	
-	public Unit( Allegiance allegiance, String designation ) {
+	public Unit( Allegiance allegiance, UnitType type, String designation ) {
 		_allegiance = allegiance;
+		_type = type;
 		_designation = designation;
 		_unitStateIndex = 0;
 	}
@@ -17,6 +22,7 @@ public class Unit {
 	}
 	
 	public Allegiance getAllegiance(){ return _allegiance; }
+	public UnitType getType(){ return _type; }
 	public String getDesignation(){ return _designation; }
 	public List<UnitState> getStates(){ return _states; }
 	public UnitState getState(){ return _states.get( _unitStateIndex ); }
