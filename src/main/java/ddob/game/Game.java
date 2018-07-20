@@ -1,5 +1,7 @@
 package ddob.game;
 
+import ddob.game.card.Deck;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -23,6 +25,7 @@ public class Game {
 	}
 	
 	public GameType getType(){ return _type; }
+
 	public Turn getCurrentTurn(){ 
 		if( _currentTurn < _turns.size() ) {
 			return _turns.get( _currentTurn );

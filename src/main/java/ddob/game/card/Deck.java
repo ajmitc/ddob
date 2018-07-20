@@ -14,7 +14,7 @@ public class Deck {
 	}
 	
 	public Card draw() {
-		return _cards.pop();
+		return _cards.remove( 0 );
 	}
 	
 	public void discard( Card card ) {
