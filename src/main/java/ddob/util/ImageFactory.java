@@ -1,6 +1,7 @@
 package ddob.util;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,13 @@ public class ImageFactory {
             logger.severe( "" + ioe );
         }
 
+        return null;
+    }
+
+    public static ImageIcon getIcon( String filename ) {
+        BufferedImage image = get( filename );
+        if( image != null )
+            return new ImageIcon( image );
         return null;
     }
 

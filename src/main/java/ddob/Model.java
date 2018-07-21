@@ -10,4 +10,8 @@ public class Model {
 	}
 	
 	public Game getGame(){ return _game; }
+
+	public void setGame( Game game ) {
+		_game = game;
+	}
 }

@@ -1,5 +1,8 @@
 package ddob.game;
 
+import ddob.game.phase.LandingCheckEastPhase;
+import ddob.game.phase.LandingCheckWestPhase;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -17,8 +20,11 @@ public class Turn {
 		_tide = tide;
 		_shuffleCards = shuffle;
 		_arrivingUnits = new ArrayList<>();
-		_phases = new ArrayList<>();
+		_phases = new ArrayList<>( 8 );
 		_phaseIndex = 0;
+
+		_phases.add( new LandingCheckEastPhase() );
+        _phases.add( new LandingCheckWestPhase() );
 	}
 	
 	public int getNumber(){ return _number; }

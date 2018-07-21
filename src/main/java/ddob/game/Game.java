@@ -20,8 +20,9 @@ public class Game {
 	public Game( GameType type ) {
 		_type = type;
 		_turns = new ArrayList<>();
-		_currentTurn = (_type == GameType.FIRST_WAVES || _type == GameType.FULL)? 0: 16;
+		_currentTurn = (_type == GameType.FIRST_WAVES || _type == GameType.EXTENDED)? 0: 16;
 		_deck = new Deck();
+		_deck.shuffle();
 	}
 	
 	public GameType getType(){ return _type; }

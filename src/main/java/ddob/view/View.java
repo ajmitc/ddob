@@ -13,17 +13,21 @@ public class View {
 	private Model _model;
 	private JFrame _frame;
 
-	private GamePanel _gamePanel;
+	private MainMenuPanel _mainMenuPanel;
+    private GamePanel _gamePanel;
 
 	public View( Model model, JFrame frame ) {
 		_model = model;	
 		_frame = frame;
 
-		//JPanel mainmenu = ;
+		_mainMenuPanel = new MainMenuPanel( _model, this );
         _gamePanel = new GamePanel( _model, this );
 
 		_frame.getContentPane().setLayout( new CardLayout() );
+        _frame.getContentPane().add( _mainMenuPanel, MAINMENU );
         _frame.getContentPane().add( _gamePanel, GAME );
+
+        show( MAINMENU );
 	}
 
 	public void show( String card ) {
@@ -40,5 +44,10 @@ public class View {
 	
 	public Model getModel() { return _model; }
 	public JFrame getFrame(){ return _frame; }
-	public GamePanel getGamePanel(){ return _gamePanel; }
+
+    public MainMenuPanel getMainMenuPanel() {
+        return _mainMenuPanel;
+    }
+
+    public GamePanel getGamePanel(){ return _gamePanel; }
 }

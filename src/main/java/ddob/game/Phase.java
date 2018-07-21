@@ -8,7 +8,7 @@ public class Phase {
 
     private String _name;
 
-    private Card _card;
+    protected Card _card;
 
     public Phase( String name ) {
         _name = name;
