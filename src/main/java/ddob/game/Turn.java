@@ -1,7 +1,6 @@
 package ddob.game;
 
-import ddob.game.phase.LandingCheckEastPhase;
-import ddob.game.phase.LandingCheckWestPhase;
+import ddob.game.phase.*;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -25,6 +24,14 @@ public class Turn {
 
 		_phases.add( new LandingCheckEastPhase() );
         _phases.add( new LandingCheckWestPhase() );
+		_phases.add( new Event1Phase() );
+		_phases.add( new GermanAttackEastPhase() );
+		_phases.add( new GermanAttackWestPhase() );
+		_phases.add( new Event2Phase() );
+		_phases.add( new EngineerPhase() );
+		_phases.add( new USActionEastPhase() );
+		_phases.add( new USActionWestPhase() );
+		_phases.add( new EndTurnPhase() );
 	}
 	
 	public int getNumber(){ return _number; }

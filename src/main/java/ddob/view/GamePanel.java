@@ -1,5 +1,6 @@
 package ddob.view;
 
+import ddob.GameManager;
 import ddob.Model;
 
 import javax.swing.*;
@@ -15,6 +16,9 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 
     private Model _model;
     private View _view;
+    private GameManager _manager;
+
+    private boolean _allowEvents;
 
     private boolean _updateThreadRunning;
     private ScheduledThreadPoolExecutor _threadPool;
@@ -26,6 +30,9 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     public GamePanel( Model model, View view ) {
         _model = model;
         _view = view;
+        _manager = null;
+
+        _allowEvents = true;
 
         _updateThreadRunning = false;
         _threadPool = new ScheduledThreadPoolExecutor( 1 );
@@ -51,6 +58,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void mouseClicked( MouseEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.mouseClicked( e ))
                 break;
@@ -58,6 +66,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void mousePressed( MouseEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.mousePressed( e ))
                 break;
@@ -65,6 +74,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void mouseReleased( MouseEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.mouseReleased( e ))
                 break;
@@ -72,6 +82,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void mouseMoved( MouseEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.mouseMoved( e ))
                 break;
@@ -79,6 +90,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void mouseDragged( MouseEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.mouseDragged( e ))
                 break;
@@ -86,6 +98,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void mouseEntered( MouseEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.mouseEntered( e ))
                 break;
@@ -93,6 +106,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void mouseExited( MouseEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.mouseExited( e ))
                 break;
@@ -100,6 +114,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void keyPressed( KeyEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.keyPressed( e ))
                 break;
@@ -107,6 +122,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void keyReleased( KeyEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.keyReleased( e ))
                 break;
@@ -114,6 +130,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void keyTyped( KeyEvent e ) {
+        if( !_allowEvents ) return;
         for( GameView view: _gameViews ) {
             if( !view.keyTyped( e ))
                 break;
@@ -150,4 +167,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     public void pushGameView( GameView gameView ) {
         _gameViews.add( gameView );
     }
+
+    public void setAllowEvents( boolean v ){ _allowEvents = v; }
+
+    public void setGameManager( GameManager manager ){ _manager = manager; }
 }
