@@ -1,7 +1,6 @@
 package ddob.game.table;
 
-import ddob.game.Unit;
-import ddob.game.card.Card;
+import ddob.game.unit.Unit;
 
 public class USAttackTable {
 

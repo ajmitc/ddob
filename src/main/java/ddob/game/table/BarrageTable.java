@@ -1,6 +1,6 @@
 package ddob.game.table;
 
-import ddob.game.Unit;
+import ddob.game.unit.Unit;
 import ddob.game.board.Color;
 
 public class BarrageTable {

@@ -1,8 +1,8 @@
 package ddob.game.card;
 
-import ddob.game.ArtilleryType;
+import ddob.game.unit.ArtilleryType;
 import ddob.game.GermanActionSymbol;
-import ddob.game.UnitSymbol;
+import ddob.game.unit.UnitSymbol;
 import ddob.game.board.Color;
 import ddob.game.event.Event;
 import ddob.util.ImageFactory;

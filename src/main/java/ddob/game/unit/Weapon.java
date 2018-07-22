@@ -1,4 +1,4 @@
-package ddob.game;
+package ddob.game.unit;
 
 public enum Weapon {
 	RADIO,

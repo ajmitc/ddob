@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public class Game {
     public static final int MID_TIDE_TURN = 7;   // TODO Check this
 	public static final int HIGH_TIDE_TURN = 10; // TODO Check this
+    public static final int BEYOND_THE_BEACH_START_TURN = 17;
 
 	// First Waves, Beyond the Beach, or both
 	private GameType _type;

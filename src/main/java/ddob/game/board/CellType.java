@@ -1,6 +1,13 @@
 package ddob.game.board;
 
 public enum CellType {
+	WATER, // Off-limits
 	LANDING_BOX,
-	BEACH
+	BEACH,
+	PAVILION,
+	DRAW,
+	ROUGH,
+	BOCAGE,
+	WOODS,
+	BUILDINGS
 }

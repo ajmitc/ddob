@@ -1,4 +1,4 @@
-package ddob.game;
+package ddob.game.unit;
 
 import java.util.List;
 import java.util.ArrayList;

@@ -1,7 +1,8 @@
 package ddob.game.phase;
 
 import ddob.game.Phase;
-import ddob.game.Unit;
+import ddob.game.unit.Unit;
+import ddob.game.board.Sector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +17,20 @@ public abstract class LandingCheckPhase extends Phase {
     public static final int END_PHASE = 6;
     public static final int MAX_PROGRESS = 7;
 
+    private Sector _sector;
     private List<Unit> _playerPlacement;
 
-    public LandingCheckPhase( String name ) {
+    public LandingCheckPhase( String name, Sector sector ) {
         super( name );
+        _sector = sector;
         _playerPlacement = new ArrayList<>();
     }
 
     public void incProgress() {
         _progress = (_progress + 1) % MAX_PROGRESS;
     }
+
+    public Sector getSector(){ return _sector; }
 
     public List<Unit> getPlayerPlacement(){ return _playerPlacement; }
 }

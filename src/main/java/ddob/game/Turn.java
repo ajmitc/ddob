@@ -1,6 +1,7 @@
 package ddob.game;
 
 import ddob.game.phase.*;
+import ddob.game.unit.Unit;
 
 import java.util.List;
 import java.util.ArrayList;
