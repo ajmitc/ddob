@@ -11,8 +11,12 @@ import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener{
+public class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener, ComponentListener{
     public static final long UPDATE_INTERVAL_MILLIS = 60;
+
+    public static final Color GAME_VIEW_BACKGROUND = Color.GRAY;
+    public static final Color GAME_VIEW_FONT_COLOR = Color.BLACK;
+    public static final Font GAME_VIEW_FONT = new Font( "Serif", Font.BOLD, 16 );
 
     private Model _model;
     private View _view;
@@ -26,6 +30,11 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     private List<GameView> _gameViews;
     private BoardGameView _boardView;
     private PhaseGameView _phaseView;
+    private TurnTrackView _turnView;
+    private MiniMapView _minimapView;
+    private TopGlassView _topGlassView;
+
+    private boolean _showPeripheralViews;
 
     public GamePanel( Model model, View view ) {
         _model = model;
@@ -37,12 +46,25 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
         _updateThreadRunning = false;
         _threadPool = new ScheduledThreadPoolExecutor( 1 );
 
-        _boardView = new BoardGameView( _model, _view );
+        addMouseListener( this );
+        addMouseMotionListener( this );
+        addKeyListener( this );
+
+        _showPeripheralViews = true;
+
         _phaseView = new PhaseGameView( _model, _view );
+        _turnView  = new TurnTrackView( _model, _view );
+        _boardView = new BoardGameView( _model, _view, this );
+        _minimapView = new MiniMapView( _model, _view, _boardView );
+        _topGlassView = new TopGlassView( _model, _view );
 
         _gameViews = new ArrayList<>();
         _gameViews.add( _boardView );
         _gameViews.add( _phaseView );
+        _gameViews.add( _turnView  );
+        _gameViews.add( _minimapView );
+        // Add additional views here
+        _gameViews.add( _topGlassView );
     }
 
     public void start() {
@@ -57,84 +79,126 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
         }
     }
 
+    @Override
     public void mouseClicked( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.mouseClicked( e ))
                 break;
         }
     }
 
+    @Override
     public void mousePressed( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.mousePressed( e ))
                 break;
         }
     }
 
+    @Override
     public void mouseReleased( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.mouseReleased( e ))
                 break;
         }
     }
 
+    @Override
     public void mouseMoved( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.mouseMoved( e ))
                 break;
         }
     }
 
+    @Override
     public void mouseDragged( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.mouseDragged( e ))
                 break;
         }
     }
 
+    @Override
     public void mouseEntered( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.mouseEntered( e ))
                 break;
         }
     }
 
+    @Override
     public void mouseExited( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.mouseExited( e ))
                 break;
         }
     }
 
+    @Override
     public void keyPressed( KeyEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.keyPressed( e ))
                 break;
         }
     }
 
+    @Override
     public void keyReleased( KeyEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.keyReleased( e ))
                 break;
         }
     }
 
+    @Override
     public void keyTyped( KeyEvent e ) {
         if( !_allowEvents ) return;
-        for( GameView view: _gameViews ) {
+        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+            GameView view = _gameViews.get( i );
             if( !view.keyTyped( e ))
                 break;
         }
+    }
+
+    @Override
+    public void componentResized( ComponentEvent e ) {
+        for( GameView view: _gameViews ) {
+            view.componentResized( e );
+        }
+    }
+
+    @Override
+    public void componentShown( ComponentEvent e ) {
+
+    }
+
+    @Override
+    public void componentMoved( ComponentEvent e ) {
+
+    }
+
+    @Override
+    public void componentHidden( ComponentEvent e ) {
+
     }
 
     class GameUpdater implements Runnable {
@@ -163,6 +227,14 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
         }
     }
 
+    public void togglePeripheralViews() {
+        _showPeripheralViews = !_showPeripheralViews;
+    }
+
+    public boolean shouldShowPeripheralViews() {
+        return _showPeripheralViews;
+    }
+
 
     public void pushGameView( GameView gameView ) {
         _gameViews.add( gameView );
@@ -171,4 +243,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     public void setAllowEvents( boolean v ){ _allowEvents = v; }
 
     public void setGameManager( GameManager manager ){ _manager = manager; }
+
+    public TurnTrackView getTurnTrackView() {
+        return _turnView;
+    }
 }

@@ -20,7 +20,7 @@ public class Turn {
 		_tide = tide;
 		_shuffleCards = shuffle;
 		_arrivingUnits = new ArrayList<>();
-		_phases = new ArrayList<>( 8 );
+		_phases = new ArrayList<>( 10 );
 		_phaseIndex = 0;
 
 		_phases.add( new LandingCheckEastPhase() );

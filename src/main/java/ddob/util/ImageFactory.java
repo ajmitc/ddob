@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.logging.*;
 
 public class ImageFactory {
-    public static final String IMAGE_DIRECTORY = "image";
-    public static final String[] EXTENSIONS = { ".png", "jpg" };
+    public static final String IMAGE_DIRECTORY = "images";
+    public static final String[] EXTENSIONS = { ".png", ".jpg" };
 
     private static Logger logger = Logger.getLogger( ImageFactory.class.getName() );
 
@@ -28,7 +28,7 @@ public class ImageFactory {
                 return get( f );
             }
         }
-        logger.severe( "Unable to find image '" + filename + "'" );
+        logger.severe( "Unable to find image '" + f + "'" );
         return null;
     }
 

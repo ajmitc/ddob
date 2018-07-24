@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainMenuPanel extends JPanel {
-    public static final String COVER_IMAGE = "1-29";
+    public static final String COVER_IMAGE = "cover_box";
 
     private Model _model;
     private View _view;
@@ -37,6 +37,7 @@ public class MainMenuPanel extends JPanel {
         setLayout( new GridLayout( 1, 2 ) );
         JLabel coverImage = new JLabel( ImageFactory.getIcon( COVER_IMAGE ) );
         add( coverImage );
+        add( buttonpanel );
     }
 
     public JButton getBtnNewGameFirstWaves() {

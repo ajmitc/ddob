@@ -3,6 +3,7 @@ package ddob.view;
 import ddob.Model;
 
 import java.awt.*;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -52,6 +53,8 @@ public abstract class GameView {
     public boolean keyReleased( KeyEvent e ) { return true; }
 
     public boolean keyTyped( KeyEvent e ) { return true; }
+
+    public void componentResized( ComponentEvent e ) {}
 
     /**
      * This is called after every update to determine if this Game View should be hidden

@@ -15,7 +15,7 @@ public class Game {
 	private GameType _type;
 	
 	// Reference to current Turn
-	private int _currentTurn;
+	private int _currentTurnIndex;
 	
 	// List of all turns (1-32)
 	private List<Turn> _turns;
@@ -27,7 +27,7 @@ public class Game {
 	public Game( GameType type ) {
 		_type = type;
 		_turns = new ArrayList<>();
-		_currentTurn = 0;
+		_currentTurnIndex = 0;
 		_deck = new Deck();
 		_deck.shuffle();
 		_board = new Board();
@@ -41,7 +41,7 @@ public class Game {
 	}
 
 	private void initTurn0( boolean extended ) {
-		_currentTurn = 0;
+		_currentTurnIndex = 0;
 		for( int i = 0; i < (extended? 32: 16); ++i ) {
 			Tide tide = Tide.LOW_TIDE;
 			Turn turn = new Turn( i + 1, tide, false );
@@ -50,7 +50,7 @@ public class Game {
 	}
 
 	private void initTurn16() {
-		_currentTurn = 16;
+		_currentTurnIndex = 16;
 		for( int i = 16; i < 32; ++i ) {
 			Turn turn = new Turn( i + 1, Tide.HIGH_TIDE, false );
 			_turns.add( turn );
@@ -60,15 +60,15 @@ public class Game {
 	public GameType getType(){ return _type; }
 
 	public Turn getCurrentTurn(){ 
-		if( _currentTurn < _turns.size() ) {
-			return _turns.get( _currentTurn );
+		if( _currentTurnIndex < _turns.size() ) {
+			return _turns.get( _currentTurnIndex );
 		}
 		return null;
 	}
 
 	public Turn getFutureTurn( int delta ) {
-		if( _currentTurn + delta < _turns.size() ) {
-			return _turns.get( _currentTurn + delta );
+		if( _currentTurnIndex + delta < _turns.size() ) {
+			return _turns.get( _currentTurnIndex + delta );
 		}
 		return null;
 	}
@@ -76,7 +76,7 @@ public class Game {
 	public List<Turn> getTurns(){ return _turns; }
 	
 	public Turn nextTurn() {
-		_currentTurn += 1;
+		_currentTurnIndex += 1;
 		return getCurrentTurn();
 	}
 	

@@ -10,7 +10,8 @@ import java.awt.event.ActionListener;
 public class Controller {
 	private Model _model;
 	private View _view;
-	
+    private GameManager _manager;
+
 	public Controller( Model model, View view ) {
 		_model = model;
 		_view = view;
@@ -19,6 +20,8 @@ public class Controller {
 			@Override
 			public void actionPerformed( ActionEvent e ) {
 				_view.getGamePanel().stop();
+				if( _manager != null )
+                    _manager.stop();
 				System.exit( 0 );
 			}
 		} );
@@ -28,8 +31,7 @@ public class Controller {
 			public void actionPerformed( ActionEvent e ) {
 				Game game = new Game( GameType.FIRST_WAVES );
 				_model.setGame( game );
-				_view.show( View.GAME );
-				_view.getGamePanel().start();
+				playGame();
 			}
 		} );
 
@@ -38,8 +40,7 @@ public class Controller {
 			public void actionPerformed( ActionEvent e ) {
 				Game game = new Game( GameType.BEYOND_THE_BEACH );
 				_model.setGame( game );
-				_view.show( View.GAME );
-				_view.getGamePanel().start();
+                playGame();
 			}
 		} );
 
@@ -48,9 +49,16 @@ public class Controller {
 			public void actionPerformed( ActionEvent e ) {
 				Game game = new Game( GameType.EXTENDED );
 				_model.setGame( game );
-				_view.show( View.GAME );
-				_view.getGamePanel().start();
+                playGame();
 			}
 		} );
 	}
+
+	private void playGame() {
+        _view.show( View.GAME );
+        _view.getGamePanel().start();
+        _manager = new GameManager( _model.getGame(), _view.getGamePanel() );
+    }
+
+    public GameManager getGameManager(){ return _manager; }
 }

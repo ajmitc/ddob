@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class GameManager implements Runnable{
-    private Logger logger = Logger.getLogger( GameManager.class.getName() );
+    private Logger _logger = Logger.getLogger( GameManager.class.getName() );
 
     private Game _game;
     private GamePanel _gamePanel;
@@ -66,7 +66,7 @@ public class GameManager implements Runnable{
             }
         }
         catch( Exception e ) {
-            logger.severe( "" + e );
+            _logger.severe( "" + e );
         }
         finally {
             if (!_stop)
@@ -75,12 +75,14 @@ public class GameManager implements Runnable{
     }
 
     private void handleLandingCheckPhase() {
+        _logger.info( "Handling Landing Check Phase" );
         Turn turn = _game.getCurrentTurn();
         Phase phase = turn.getCurrentPhase();
         int phaseProgress = phase.getProgress();
 
         switch( phaseProgress ) {
             case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
+                _logger.info( "   Place units in Landing Boxes" );
                 // TODO Only place Division applicable to this phase
                 for (Unit unit : turn.getArrivingUnits()) {
                     // Place unit in landing box
@@ -96,18 +98,22 @@ public class GameManager implements Runnable{
                 break;
             }
             case LandingCheckPhase.PLAYER_PLACE_UNITS_IN_LANDING_BOXES: {
+                _logger.info( "   Place units in Landing Boxes (Player)" );
                 // TODO Only enable valid landing boxes for last unit
                 // TODO Once unit is placed, pop from list
                 // TODO Once list is empty, goto next phase progress
+                phase.incProgress();
                 break;
             }
             case LandingCheckPhase.DRAW_CARD: {
+                _logger.info( "   Draw card" );
                 Card card = _game.getDeck().draw();
                 phase.setCard( card );
                 phase.incProgress();
                 break;
             }
             case LandingCheckPhase.APPLY_LANDING_CHECKS: {
+                _logger.info( "   Apply Landing Checks" );
                 for( Cell cell: _game.getBoard().getLandingBoxes( ((LandingCheckPhase) phase).getSector() ) ) {
                     List<Unit> toremove = new ArrayList<>();
                     for( Unit unit: cell.getUnits() ) {
@@ -141,6 +147,7 @@ public class GameManager implements Runnable{
                 break;
             }
             case LandingCheckPhase.CHECK_MINE_EXPLOSION: {
+                _logger.info( "   Check for mine explosion" );
                 if( turn.getNumber() < Game.MID_TIDE_TURN ) {
                     phase.incProgress();
                     break;
@@ -157,6 +164,7 @@ public class GameManager implements Runnable{
                 break;
             }
             case LandingCheckPhase.LAND_UNITS: {
+                _logger.info( "   Land units" );
                 for( Cell cell: _game.getBoard().getLandingBoxes( ((LandingCheckPhase) phase).getSector() ) ) {
                     Cell targetCell = _game.getBoard().getLandingBoxBeachHex( cell, turn.getTide() );
                     for (Unit unit : cell.getUnits()) {
@@ -169,6 +177,7 @@ public class GameManager implements Runnable{
                 break;
             }
             case LandingCheckPhase.END_PHASE: {
+                _logger.info( "   End Phase" );
                 endPhase();
                 break;
             }

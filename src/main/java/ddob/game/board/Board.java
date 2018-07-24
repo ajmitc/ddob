@@ -23,14 +23,14 @@ public class Board {
     }
 
     private static void addLandingBoxDest( String lb, String lt, String mt, String ht ) {
-        int lby = Integer.decode( lb.substring( 0, 2 ) ) - 1;
-        int lbx = Integer.decode( lb.substring( 2, 4 ) ) - 1;
-        int lty = Integer.decode( lt.substring( 0, 2 ) ) - 1;
-        int ltx = Integer.decode( lt.substring( 2, 4 ) ) - 1;
-        int mty = Integer.decode( mt.substring( 0, 2 ) ) - 1;
-        int mtx = Integer.decode( mt.substring( 2, 4 ) ) - 1;
-        int hty = Integer.decode( ht.substring( 0, 2 ) ) - 1;
-        int htx = Integer.decode( ht.substring( 2, 4 ) ) - 1;
+        int lby = Integer.parseInt( lb.substring( 0, 2 ) ) - 1;
+        int lbx = Integer.parseInt( lb.substring( 2, 4 ) ) - 1;
+        int lty = Integer.parseInt( lt.substring( 0, 2 ) ) - 1;
+        int ltx = Integer.parseInt( lt.substring( 2, 4 ) ) - 1;
+        int mty = Integer.parseInt( mt.substring( 0, 2 ) ) - 1;
+        int mtx = Integer.parseInt( mt.substring( 2, 4 ) ) - 1;
+        int hty = Integer.parseInt( ht.substring( 0, 2 ) ) - 1;
+        int htx = Integer.parseInt( ht.substring( 2, 4 ) ) - 1;
         Point p = new Point( lbx, lby );
         LANDING_BOX_DESTINATIONS.put( p, new HashMap<>() );
         LANDING_BOX_DESTINATIONS.get( p ).put( Tide.LOW_TIDE,  new Point( ltx, lty ) );
