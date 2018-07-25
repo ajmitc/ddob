@@ -1,6 +1,12 @@
 package ddob.game.unit;
 
 public enum Weapon {
-	RADIO,
-	MG
+	DE,
+	BG,
+	BR,
+    BZ,
+	FL,
+	MG,
+    MO,
+	RD
 }
