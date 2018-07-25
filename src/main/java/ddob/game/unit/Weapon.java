@@ -1,6 +1,7 @@
 package ddob.game.unit;
 
 public enum Weapon {
+	AR,
 	DE,
 	BG,
 	BR,
@@ -8,5 +9,6 @@ public enum Weapon {
 	FL,
 	MG,
     MO,
+	NA,
 	RD
 }
