@@ -1,5 +1,6 @@
 package ddob.game.unit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Unit {
@@ -20,6 +21,7 @@ public class Unit {
 		_designation = designation;
 		_unitStateIndex = 0;
 		_disrupted = false;
+		_states = new ArrayList<>();
 	}
 	
 	public void addState( UnitState state ) {
@@ -51,5 +53,12 @@ public class Unit {
 	
 	public boolean nextState() {
 		return setStateByIndex( _unitStateIndex + 1 );
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append( _allegiance == Allegiance.US? "US ": "GER " );
+		sb.append( _designation );
+		return sb.toString();
 	}
 }

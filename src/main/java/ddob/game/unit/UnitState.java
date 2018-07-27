@@ -22,8 +22,10 @@ public class UnitState {
 		_strength = strength;
 		_range = range;
 		_weapons = new ArrayList<>();
-		for( Weapon w: weapons ) {
-			_weapons.add( w );
+		if( weapons != null ) {
+			for( Weapon w : weapons ) {
+				_weapons.add( w );
+			}
 		}
 	}
 	

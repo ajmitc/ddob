@@ -30,4 +30,12 @@ public enum UnitType {
     public boolean isArmored() {
 	    return (this == UnitType.TANK || this == UnitType.SELF_PROPELLED_ARTILLERY || this == UnitType.SELF_PROPELLED_ANTI_AIRCRAFT);
     }
+
+    public boolean isWN() {
+        return (this == UnitType.WN || this == UnitType.WN_ARTILLERY_75 || this == UnitType.WN_ARTILLERY_88 || this == UnitType.WN_ARTILLERY_105 || this == UnitType.WN_ROCKET );
+    }
+
+    public boolean isArtillery() {
+        return (this == UnitType.ARTILLERY || this == UnitType.SELF_PROPELLED_ARTILLERY || this == UnitType.WN_ARTILLERY_75 || this == UnitType.WN_ARTILLERY_88 || this == UnitType.WN_ARTILLERY_105 || this == UnitType.WN_ROCKET );
+    }
 }

@@ -19,8 +19,10 @@ public class DepthMarker {
         _type = type;
         _strength = 0;
         _weapons = new ArrayList<>();
-        for( Weapon weapon: weapons ) {
-            _weapons.add( weapon );
+        if( weapons != null ) {
+            for( Weapon weapon : weapons ) {
+                _weapons.add( weapon );
+            }
         }
     }
 }

@@ -11,11 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class Game {
     public static final int MID_TIDE_TURN = 7;   // TODO Check this
 	public static final int HIGH_TIDE_TURN = 16; // TODO Check this
     public static final int BEYOND_THE_BEACH_START_TURN = 17;
+
+    public Logger _logger = Logger.getLogger( Game.class.getName() );
 
 	// First Waves, Beyond the Beach, or both
 	private GameType _type;
@@ -69,6 +72,7 @@ public class Game {
         _1stHeroIndex = 0;
         _29thHeroIndex = 0;
 
+        _logger.info( "Loading US Units" );
         loadUS1stDivisionUnits();
         loadUS29thDivisionUnits();
 
@@ -84,9 +88,11 @@ public class Game {
         _germanDepthMarkers.put( DepthMarkerType.MOBILE,   new ArrayList<>() );
         _germanDepthMarkers.put( DepthMarkerType.BUILDING, new ArrayList<>() );
 
+        _logger.info( "Loading German Units" );
         loadGermanUnits();
 
         // Setup turns
+        _logger.info( "Setting up Turns" );
         for( int i = 0; i < 32; ++i ) {
             Tide tide = Tide.LOW_TIDE;
             if( i >= MID_TIDE_TURN - 1 && i < HIGH_TIDE_TURN - 1 ) { // Turn 7-15
@@ -105,6 +111,7 @@ public class Game {
         _currentTurnIndex = (_type == GameType.FIRST_WAVES? 0: 16);
 
         // Place US Units in turn spaces
+        _logger.info( "Placing US Units on Turn Track" );
         for( Division division: _usUnits.keySet() ) {
             for( USUnit unit : _usUnits.get( division ) ) {
                 int arrivalTurn = unit.getArrivalTurn();
@@ -115,13 +122,20 @@ public class Game {
         }
 
         // If First Waves, place starting units in landing boxes
+        _logger.info( "Placing US Units in Landing Boxes" );
         if( _type == GameType.FIRST_WAVES ) {
             for( Division division: _usUnits.keySet() ) {
                 for( USUnit unit : _usUnits.get( division ) ) {
                     int arrivalTurn = unit.getArrivalTurn();
                     if( arrivalTurn == 0 ) {
-                        Cell landingBox = _board.getLandingBox( unit.getLandingBox() );
-                        landingBox.getUnits().add( unit );
+                        List<Cell> landingBoxes = _board.getLandingBox( unit.getLandingBox() );
+                        if( landingBoxes.size() == 1 ) {
+                            landingBoxes.get( 0 ).getUnits().add( unit );
+                            _logger.info( "   Placed " + unit + " in " + landingBoxes.get( 0 ).getCode() );
+                        }
+                        else {
+                            _logger.warning( "   Landing Box '" + unit.getLandingBox() + "' returned " + landingBoxes.size() + " results, not placing..." );
+                        }
                     }
                 }
             }
@@ -687,40 +701,40 @@ public class Game {
         unit.addState( new UnitState( ImageFactory.get( "Ger_WN-2-BZ-BR" ), 2, 0, null, new Weapon[]{ Weapon.BZ, Weapon.BR } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ROCKET, "WN-1Ro_1-MO-BZ" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-1Ro_1-MO-BZ" ), 1, 0, null, new Weapon[]{ Weapon.MO, Weapon.BZ } ) );
+        unit = new GermanUnit( UnitType.WN_ROCKET, "WN_1Ro_1-MO-BZ" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_1Ro_1-MO-BZ" ), 1, 0, null, new Weapon[]{ Weapon.MO, Weapon.BZ } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN-75_1-MO-BZ" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-75_1-MO-BZ" ), 1, 0, null, new Weapon[]{ Weapon.MO, Weapon.BZ } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN_75_1-MO-BZ" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_75_1-MO-BZ" ), 1, 0, null, new Weapon[]{ Weapon.MO, Weapon.BZ } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN-75_2-BG-BZ" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-75_2-BG-BZ" ), 2, 0, null, new Weapon[]{ Weapon.BG, Weapon.BZ } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN_75_2-BG-BZ" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_75_2-BG-BZ" ), 2, 0, null, new Weapon[]{ Weapon.BG, Weapon.BZ } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN-75_2-BG-MG" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-75_2-BG-MG" ), 2, 0, null, new Weapon[]{ Weapon.BG, Weapon.MG } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN_75_2-BG-MG" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_75_2-BG-MG" ), 2, 0, null, new Weapon[]{ Weapon.BG, Weapon.MG } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN-75_2-MO-MG" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-75_2-MO-MG" ), 2, 0, null, new Weapon[]{ Weapon.MO, Weapon.MG } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN_75_2-MO-MG" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_75_2-MO-MG" ), 2, 0, null, new Weapon[]{ Weapon.MO, Weapon.MG } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN-75_3-BG-BR" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-75_3-BG-BR" ), 3, 0, null, new Weapon[]{ Weapon.BG, Weapon.BR } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN_75_3-BG-BR" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_75_3-BG-BR" ), 3, 0, null, new Weapon[]{ Weapon.BG, Weapon.BR } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN-75_3-BG-BZ" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-75_3-BG-BZ" ), 3, 0, null, new Weapon[]{ Weapon.BG, Weapon.BZ } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_75, "WN_75_3-BG-BZ" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_75_3-BG-BZ" ), 3, 0, null, new Weapon[]{ Weapon.BG, Weapon.BZ } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_88, "WN-88_2-BG-MO" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-88_2-BG-MO" ), 2, 0, null, new Weapon[]{ Weapon.BG, Weapon.MO } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_88, "WN_88_2-BG-MO" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_88_2-BG-MO" ), 2, 0, null, new Weapon[]{ Weapon.BG, Weapon.MO } ) );
         _germanWNs.add( unit );
 
-        unit = new GermanUnit( UnitType.WN_ARTILLERY_88, "WN-88_2-BZ-MG" );
-        unit.addState( new UnitState( ImageFactory.get( "Ger_WN-88_2-BZ-MG" ), 2, 0, null, new Weapon[]{ Weapon.BZ, Weapon.MG } ) );
+        unit = new GermanUnit( UnitType.WN_ARTILLERY_88, "WN_88_2-BZ-MG" );
+        unit.addState( new UnitState( ImageFactory.get( "Ger_WN_88_2-BZ-MG" ), 2, 0, null, new Weapon[]{ Weapon.BZ, Weapon.MG } ) );
         _germanWNs.add( unit );
 
 

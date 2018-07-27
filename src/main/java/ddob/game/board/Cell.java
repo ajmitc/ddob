@@ -13,7 +13,7 @@ public class Cell {
 	private int _x;
 	private int _y;
 	
-	private CellType _type;
+	private List<CellType> _types;
 
 	private List<Unit> _units;
 
@@ -26,15 +26,16 @@ public class Cell {
 	private List<Point> _attackPositionAdvanceCells;
 	private Map<Intensity, List<Point>> _attackPositionFieldOfFire;
 
-    public Cell( int x, int y, CellType type, String code ) {
-        this( x, y, type, code, null, null, 0, new Point[]{}, new Point[]{}, new Point[]{}, new Point[]{} );
+    public Cell( int x, int y, List<CellType> types, String code ) {
+        this( x, y, types, code, null, null, 0, new Point[]{}, new Point[]{}, new Point[]{}, new Point[]{} );
     }
 
 
-	public Cell( int x, int y, CellType type, String code, AttackPositionType attackPositionType, Color attackPositionColor, int attackPositionVP, Point[] attackPositionAdvanceCells, Point[] intense, Point[] steady, Point[] sporadic  ) {
+	public Cell( int x, int y, List<CellType> types, String code, AttackPositionType attackPositionType, Color attackPositionColor, int attackPositionVP, Point[] attackPositionAdvanceCells, Point[] intense, Point[] steady, Point[] sporadic  ) {
 		_x = x;
 		_y = y;
-		_type = type;
+		_types = new ArrayList<>();
+		_types.addAll( types );
 		_code = code;
 		_units = new ArrayList<>();
 		_cleared = false;
@@ -61,7 +62,12 @@ public class Cell {
 	public String getCode(){ return _code; }
 	public int getX(){ return _x; }
 	public int getY(){ return _y; }
-	public CellType getType(){ return _type; }
+	public List<CellType> getTypes(){ return _types; }
+
+	public boolean hasType( CellType type ) {
+        return _types.contains( type );
+    }
+
 	public List<Unit> getUnits(){ return _units; }
 	public boolean isCleared(){ return _cleared; }
 

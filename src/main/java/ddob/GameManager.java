@@ -11,10 +11,7 @@ import ddob.game.phase.GermanAttackPhase;
 import ddob.game.phase.LandingCheckPhase;
 import ddob.game.table.LandingCheckResult;
 import ddob.game.table.LandingCheckTable;
-import ddob.game.unit.Allegiance;
-import ddob.game.unit.Unit;
-import ddob.game.unit.UnitSymbol;
-import ddob.game.unit.UnitType;
+import ddob.game.unit.*;
 import ddob.view.GamePanel;
 
 import java.awt.*;
@@ -70,7 +67,7 @@ public class GameManager implements Runnable{
         }
         finally {
             if (!_stop)
-                _threadPool.schedule(this, 1, TimeUnit.SECONDS);
+                _threadPool.schedule(this, 2, TimeUnit.SECONDS);
         }
     }
 
@@ -84,14 +81,17 @@ public class GameManager implements Runnable{
             case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
                 _logger.info( "   Place units in Landing Boxes" );
                 // TODO Only place Division applicable to this phase
-                for (Unit unit : turn.getArrivingUnits()) {
+                for (USUnit unit : turn.getArrivingUnits()) {
                     // Place unit in landing box
                     // If player has choice, add unit to next phase
-                    if (unit.getLandingBox().equals(Unit.LANDING_BOX_1st_DIVISION) ||
-                            unit.getLandingBox().equals(Unit.LANDING_BOX_29th_DIVISION)) {
+                    List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
+                    if( cells.size() > 1 ) {
                         ((LandingCheckPhase) phase).getPlayerPlacement().add(unit);
-                    } else {
-                        _game.getBoard().getLandingBox(unit.getLandingBox()).getUnits().add(unit);
+                    } else if( cells.size() == 1 ) {
+                        cells.get( 0 ).getUnits().add(unit);
+                    }
+                    else {
+                        _logger.severe( "Unable to get landing boxes for '" + unit.getLandingBox() + "'" );
                     }
                 }
                 phase.incProgress();
@@ -128,12 +128,12 @@ public class GameManager implements Runnable{
                                 }
                                 else {
                                     // DELAY 1 Turn
-                                    _game.getFutureTurn( 1 ).getArrivingUnits().add( unit );
+                                    _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
                                 }
                                 toremove.add( unit );
                                 break;
                             case DELAYED_TWO_TURNS:
-                                _game.getFutureTurn( 2 ).getArrivingUnits().add( unit );
+                                _game.getFutureTurn( 2 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
                                 break;
                         }
@@ -343,7 +343,7 @@ public class GameManager implements Runnable{
             if( minDepth > 1 && (turn < Game.BEYOND_THE_BEACH_START_TURN || actionSymbol != GermanActionSymbol.RESUPPLY_REDEPLOY_REINFORCE_REOCCUPY) ) {
                 boolean isOK = false;
                 for( Unit unit: cell.getUnits() ) {
-                    if( unit.getDepthMarker() != null ) {
+                    if( ((GermanUnit) unit).getDepthMarker() != null ) {
                         isOK = true;
                     }
                 }
@@ -408,7 +408,7 @@ public class GameManager implements Runnable{
 
 
     private void handleGermanAttackFire( int turn, Cell attackPosition, Map<Intensity, List<Cell>> fof, UnitSymbol unitSymbol, boolean armorHitBonus, boolean hqHitBonus ) {
-        int maxAttacks = attackPosition.getUnits().get( 0 ).getDepthMarker() != null? 2: 1;
+        int maxAttacks = ((GermanUnit) attackPosition.getUnits().get( 0 )).getDepthMarker() != null? 2: 1;
         if( turn >= Game.BEYOND_THE_BEACH_START_TURN )
             maxAttacks *= 2;
         Intensity[] intensityOrder = new Intensity[]{
@@ -432,14 +432,14 @@ public class GameManager implements Runnable{
                         }
                         else if( intensity == Intensity.STEADY ) {
                             // Non-armored (unless armor bonus) units with same unit symbol lose a step
-                            if( unit.getSymbol() == unitSymbol && (!unit.getType().isArmored() || armorHitBonus) ) {
+                            if( unit.getState().getSymbol() == unitSymbol && (!unit.getType().isArmored() || armorHitBonus) ) {
                                 unit.nextState();
                                 --maxAttacks;
                             }
                         }
                         else if( intensity == Intensity.STEADY ) {
                             // Non-armored (unless armor bonus) units with same unit symbol are disrupted
-                            if( unit.getSymbol() == unitSymbol && (!unit.getType().isArmored() || armorHitBonus) ) {
+                            if( unit.getState().getSymbol() == unitSymbol && (!unit.getType().isArmored() || armorHitBonus) ) {
                                 unit.setDisrupted( true );
                                 --maxAttacks;
                             }
