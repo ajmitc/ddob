@@ -1,6 +1,7 @@
 package ddob.view;
 
 import ddob.Model;
+import ddob.game.board.Board;
 import ddob.game.board.Cell;
 import ddob.game.board.CellVisitor;
 import ddob.game.unit.Allegiance;
@@ -18,10 +19,10 @@ public class BoardGameView extends GameView {
     public static final String BOARD_IMAGE_FILENAME = "Board_Main_Cropped"; // "Board_MainAlternate"
     private static final int EDGE_SCROLLING_THRESHOLD = 40;
     private static final int[] SCROLLING_SPEED = { 10, 8, 6, 4 };
-    private static final int CELL_OFFSET_Y = 100;
-    private static final int CELL_OFFSET_X_EVEN = 100;
-    private static final int CELL_OFFSET_X_ODD = 100;
-    private static final int CELL_WIDTH = 100;
+    private static final int CELL_OFFSET_Y = 20;
+    private static final int CELL_OFFSET_X_ODD = 38;
+    private static final int CELL_OFFSET_X_EVEN = 93;
+    private static final int CELL_WIDTH = 110;
     private static final int CELL_HEIGHT = 100;
 
     private Logger _logger = Logger.getLogger( BoardGameView.class.getName() );
@@ -77,6 +78,18 @@ public class BoardGameView extends GameView {
         BufferedImage clip = _boardImage.getSubimage( _vpx, _vpy, g.getClipBounds().width, drawHeight );
         g.drawImage( clip, null, 0, turnTrackHeight );
 
+        g.setColor( Color.RED );
+        g.drawLine( 0, turnTrackHeight + CELL_OFFSET_Y, 1000, turnTrackHeight + CELL_OFFSET_Y );
+        g.drawString( "CELL_OFFSET_Y", 1000, turnTrackHeight + CELL_OFFSET_Y );
+
+        g.drawLine( CELL_OFFSET_X_EVEN, turnTrackHeight, CELL_OFFSET_X_EVEN, turnTrackHeight + 500 );
+        g.drawString( "CELL_OFFSET_X_EVEN", CELL_OFFSET_X_EVEN, turnTrackHeight + 500 );
+
+        g.drawLine( CELL_OFFSET_X_ODD, turnTrackHeight, CELL_OFFSET_X_ODD, turnTrackHeight + 450 );
+        g.drawString( "CELL_OFFSET_X_ODD", CELL_OFFSET_X_ODD, turnTrackHeight + 450 );
+
+        g.drawRect( 38, 402, CELL_WIDTH, CELL_HEIGHT );
+
         drawCells( g, panelSize );
     }
 
@@ -94,10 +107,17 @@ public class BoardGameView extends GameView {
 
 
     private void drawCell( Graphics2D g, Cell cell, Dimension panelSize ) {
-        int cellY = CELL_OFFSET_Y + (cell.getY() * CELL_HEIGHT);
-        int cellX = cell.getY() % 2 == 0? CELL_OFFSET_X_EVEN: CELL_OFFSET_X_ODD;
-        cellX += (cell.getX() * CELL_WIDTH);
+        // Flip cell coordinates to make the math work out
+        int x = cell.getX();
+        int y = cell.getY();
+        y = -y + Board.HEIGHT;
 
+        // Calculate the pixel location on map
+        int cellY = CELL_OFFSET_Y + (y * CELL_HEIGHT);
+        int cellX = cell.getY() % 2 == 0? CELL_OFFSET_X_EVEN: CELL_OFFSET_X_ODD;
+        cellX += (x * CELL_WIDTH);
+
+        // If these pixels are outside the viewport, don't draw it
         if( cellX < _vpx - 100 || cellX > _vpx + panelSize.width + 100 || cellY < _vpy - 100 || cellY > _vpy + panelSize.height + 100 ) {
             // Cell is outside viewable area so don't draw it.
             return;
