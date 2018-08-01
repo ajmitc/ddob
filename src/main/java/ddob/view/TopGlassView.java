@@ -9,7 +9,7 @@ import java.awt.event.MouseEvent;
 import java.util.logging.Logger;
 
 /**
- * This view will display the current phase and the drawn card.  Clicking on the Card will display it in a CardGameView.
+ * This view captures the TAB key pressed that will hide other views.
  */
 public class TopGlassView extends GameView {
     private Logger _logger = Logger.getLogger( TopGlassView.class.getName() );

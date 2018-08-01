@@ -32,6 +32,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     private PhaseGameView _phaseView;
     private TurnTrackView _turnView;
     private MiniMapView _minimapView;
+	private NotificationView _notificationView;
     private TopGlassView _topGlassView;
 
     private boolean _showPeripheralViews;
@@ -56,6 +57,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
         _turnView  = new TurnTrackView( _model, _view );
         _boardView = new BoardGameView( _model, _view, this );
         _minimapView = new MiniMapView( _model, _view, _boardView );
+		_notificationView = new NotificationView( _model, _view );
         _topGlassView = new TopGlassView( _model, _view );
 
         _gameViews = new ArrayList<>();
@@ -63,6 +65,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
         _gameViews.add( _phaseView );
         _gameViews.add( _turnView  );
         _gameViews.add( _minimapView );
+		_gameViews.add( _notificationView );
         // Add additional views here
         _gameViews.add( _topGlassView );
     }
@@ -70,6 +73,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     public void start() {
         _updateThreadRunning = true;
         _threadPool.scheduleAtFixedRate( new GameUpdater(), 0, UPDATE_INTERVAL_MILLIS, TimeUnit.MILLISECONDS );
+		requestFocus();
     }
 
     public void stop() {
