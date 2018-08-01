@@ -57,7 +57,7 @@ public class Controller {
 	private void playGame() {
         _view.show( View.GAME );
         _view.getGamePanel().start();
-        _manager = new GameManager( _model.getGame(), _view.getGamePanel() );
+        //_manager = new GameManager( _model.getGame(), _view.getGamePanel() );
     }
 
     public GameManager getGameManager(){ return _manager; }

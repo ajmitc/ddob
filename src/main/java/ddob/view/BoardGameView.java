@@ -1,6 +1,13 @@
 package ddob.view;
 
 import ddob.Model;
+import ddob.game.board.Board;
+import ddob.game.board.Cell;
+import ddob.game.board.CellVisitor;
+import ddob.game.unit.Allegiance;
+import ddob.game.unit.GermanUnit;
+import ddob.game.unit.Unit;
+import ddob.game.unit.UnitType;
 import ddob.util.ImageFactory;
 
 import java.awt.*;
@@ -12,6 +19,11 @@ public class BoardGameView extends GameView {
     public static final String BOARD_IMAGE_FILENAME = "Board_Main_Cropped"; // "Board_MainAlternate"
     private static final int EDGE_SCROLLING_THRESHOLD = 40;
     private static final int[] SCROLLING_SPEED = { 10, 8, 6, 4 };
+    private static final int CELL_OFFSET_Y = 20;
+    private static final int CELL_OFFSET_X_ODD = 38;
+    private static final int CELL_OFFSET_X_EVEN = 93;
+    private static final int CELL_WIDTH = 110;
+    private static final int CELL_HEIGHT = 100;
 
     private Logger _logger = Logger.getLogger( BoardGameView.class.getName() );
     private GamePanel _gamePanel;
@@ -53,8 +65,8 @@ public class BoardGameView extends GameView {
             _vpx += SCROLLING_SPEED[ ((g.getClipBounds().width - EDGE_SCROLLING_THRESHOLD) / 10) % SCROLLING_SPEED.length ];
         }
         // Scroll up
-        if( _mpy >= 0 && _mpy < EDGE_SCROLLING_THRESHOLD ) {
-            _vpy -= SCROLLING_SPEED[ (_mpy / 10) % SCROLLING_SPEED.length ];
+        if( _mpy >= turnTrackHeight && _mpy < turnTrackHeight + EDGE_SCROLLING_THRESHOLD ) {
+            _vpy -= SCROLLING_SPEED[ ((_mpy - turnTrackHeight) / 10) % SCROLLING_SPEED.length ];
         }
         // Scroll down
         if( _mpy > g.getClipBounds().height - EDGE_SCROLLING_THRESHOLD ) {
@@ -65,6 +77,83 @@ public class BoardGameView extends GameView {
 
         BufferedImage clip = _boardImage.getSubimage( _vpx, _vpy, g.getClipBounds().width, drawHeight );
         g.drawImage( clip, null, 0, turnTrackHeight );
+
+        g.setColor( Color.RED );
+        g.drawLine( 0, turnTrackHeight + CELL_OFFSET_Y, 1000, turnTrackHeight + CELL_OFFSET_Y );
+        g.drawString( "CELL_OFFSET_Y", 1000, turnTrackHeight + CELL_OFFSET_Y );
+
+        g.drawLine( CELL_OFFSET_X_EVEN, turnTrackHeight, CELL_OFFSET_X_EVEN, turnTrackHeight + 500 );
+        g.drawString( "CELL_OFFSET_X_EVEN", CELL_OFFSET_X_EVEN, turnTrackHeight + 500 );
+
+        g.drawLine( CELL_OFFSET_X_ODD, turnTrackHeight, CELL_OFFSET_X_ODD, turnTrackHeight + 450 );
+        g.drawString( "CELL_OFFSET_X_ODD", CELL_OFFSET_X_ODD, turnTrackHeight + 450 );
+
+        g.drawRect( 38, 402, CELL_WIDTH, CELL_HEIGHT );
+
+        drawCells( g, panelSize );
+    }
+
+    private void drawCells( Graphics2D g, Dimension panelSize ) {
+        CellVisitor visitor = new CellVisitor() {
+            @Override
+            public boolean visit( Cell cell ) {
+                drawCell( g, cell, panelSize );
+                return true;
+            }
+        };
+
+        _model.getGame().getBoard().visitCells( visitor );
+    }
+
+
+    private void drawCell( Graphics2D g, Cell cell, Dimension panelSize ) {
+        // Flip cell coordinates to make the math work out
+        int x = cell.getX();
+        int y = cell.getY();
+        y = -y + Board.HEIGHT;
+
+        // Calculate the pixel location on map
+        int cellY = CELL_OFFSET_Y + (y * CELL_HEIGHT);
+        int cellX = cell.getY() % 2 == 0? CELL_OFFSET_X_EVEN: CELL_OFFSET_X_ODD;
+        cellX += (x * CELL_WIDTH);
+
+        // If these pixels are outside the viewport, don't draw it
+        if( cellX < _vpx - 100 || cellX > _vpx + panelSize.width + 100 || cellY < _vpy - 100 || cellY > _vpy + panelSize.height + 100 ) {
+            // Cell is outside viewable area so don't draw it.
+            return;
+        }
+
+        // Draw units
+        for( Unit unit: cell.getUnits() ) {
+            BufferedImage image = null;
+            if( unit.getAllegiance() == Allegiance.GERMAN && !((GermanUnit) unit).isRevealed() ) {
+                if( unit.getType().isWN() ) {
+                    if( unit.getType() == UnitType.WN_ARTILLERY_75 ) {
+                        image = _model.getGame().getGermanWNArtillery75Back();
+                    }
+                    else if( unit.getType() == UnitType.WN_ARTILLERY_88 ) {
+                        image = _model.getGame().getGermanWNArtillery88Back();
+                    }
+                    else if( unit.getType() == UnitType.WN_ROCKET ) {
+                        image = _model.getGame().getGermanWNRocketBack();
+                    }
+                    else {
+                        image = _model.getGame().getGermanWNBack();
+                    }
+                }
+                else if( unit.getType() == UnitType.INFANTRY ) {
+                    image = _model.getGame().getGermanReinforcementBack();
+                }
+            }
+            else {
+                image = unit.getState().getImage();
+            }
+
+            // move to proper place on screen
+            cellX -= _vpx;
+            cellY -= _vpy;
+            g.drawImage( image, null, cellX, cellY );
+        }
     }
 
     /**

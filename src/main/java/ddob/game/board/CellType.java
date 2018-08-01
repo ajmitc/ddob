@@ -9,5 +9,7 @@ public enum CellType {
 	ROUGH,
 	BOCAGE,
 	WOODS,
-	BUILDINGS
+	BUILDINGS,
+	HIGH_GROUND,
+	OFF_LIMITS
 }
