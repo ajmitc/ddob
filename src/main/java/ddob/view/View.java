@@ -5,6 +5,8 @@ import ddob.game.card.Card;
 
 import javax.swing.JFrame;
 import java.awt.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class View {
     public static final String MAINMENU = "MainMenu";
@@ -15,6 +17,8 @@ public class View {
 
 	private MainMenuPanel _mainMenuPanel;
     private GamePanel _gamePanel;
+	
+	private List<Notification> _notifications;
 
 	public View( Model model, JFrame frame ) {
 		_model = model;	
@@ -28,6 +32,8 @@ public class View {
         _frame.getContentPane().add( _gamePanel, GAME );
 
         show( MAINMENU );
+		
+		_notifications = new ArrayList<>();
 	}
 
 	public void show( String card ) {
@@ -50,4 +56,23 @@ public class View {
     }
 
     public GamePanel getGamePanel(){ return _gamePanel; }
+	
+	public List<Notification> getNotifications(){ return _notifications; }
+	public void addNotification( Notification n ){ _notifications.add( n ); }
+	
+	public void notifyDebug( String content ) {
+		addNotification( new Notification( NotificationLevel.DEBUG, content ) );
+	}
+	
+	public void notifyInfo( String content ) {
+		addNotification( new Notification( NotificationLevel.INFO, content ) );
+	}
+	
+	public void notifyWarning( String content ) {
+		addNotification( new Notification( NotificationLevel.WARNING, content ) );
+	}
+	
+	public void notifyError( String content ) {
+		addNotification( new Notification( NotificationLevel.ERROR, content ) );
+	}
 }
