@@ -13,8 +13,8 @@ import ddob.game.table.LandingCheckResult;
 import ddob.game.table.LandingCheckTable;
 import ddob.game.unit.*;
 import ddob.view.GamePanel;
+import ddob.view.View;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,17 +84,21 @@ public class GameManager implements Runnable{
         switch( phaseProgress ) {
             case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
                 _logger.info( "   Place units in Landing Boxes" );
-				_view.notifyInfo( "Landing Check " + phase.getSector() );
+				Sector sector = ((LandingCheckPhase) phase).getSector();
+                _view.notifyInfo( "Landing Check " + sector );
                 StringBuilder sb = new StringBuilder();
                 for (USUnit unit : turn.getArrivingUnits()) {
 					// Only place Division applicable to this phase
-					if( (phase.getSector() == Sector.EAST && unit.getDivision() == Division.US_1) ||
-					    (phase.getSector() == Sector.WEST && unit.getDivision() == Division.US_29) ) {
+					if( (sector == Sector.EAST && unit.getDivision() == Division.US_1) ||
+					    (sector == Sector.WEST && unit.getDivision() == Division.US_29) ) {
                     	// Place unit in landing box
                     	// If player has choice, add unit to next phase
                     	List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
                     	if( cells.size() > 1 ) {
-                        	((LandingCheckPhase) phase).getPlayerPlacement().add( unit );
+                    	    if( sector == Sector.EAST )
+                                ((LandingCheckPhase) phase).getPlayerPlacementEast().add( unit );
+                            else
+                                ((LandingCheckPhase) phase).getPlayerPlacementWest().add( unit );
                     	} else if( cells.size() == 1 ) {
 	                        cells.get( 0 ).getUnits().add( unit );
 							sb.append( "Placed " + unit );
@@ -114,10 +118,27 @@ public class GameManager implements Runnable{
             }
             case LandingCheckPhase.PLAYER_PLACE_UNITS_IN_LANDING_BOXES: {
                 _logger.info( "   Place units in Landing Boxes (Player)" );
-                // TODO Only enable valid landing boxes for last unit
-                // TODO Once unit is placed, pop from list
-                // TODO Once list is empty, goto next phase progress
-                phase.incProgress();
+                // Once list is empty, goto next phase progress
+                LandingCheckPhase lcp = (LandingCheckPhase) phase;
+                Sector sector = lcp.getSector();
+                if( (sector == Sector.EAST && lcp.getPlayerPlacementEast().size() == 0) ||
+                    (sector == Sector.WEST && lcp.getPlayerPlacementWest().size() == 0) ) {
+                    lcp.setWaitForUserSelection( false );
+                    phase.incProgress();
+                }
+                else if( !lcp.shouldWaitForUserSelection() ) {
+                    // Only enable valid landing boxes for last unit
+                    _model.getGame().getBoard().disableCells();
+                    _view.notifyInfo( "Place " + sector );
+                    StringBuilder sb = new StringBuilder();
+                    USUnit unit = sector == Sector.EAST? lcp.getPlayerPlacementEast().get( 0 ): lcp.getPlayerPlacementWest().get( 0 );
+                    // Enable cells
+                    List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
+                    for( Cell cell : cells ) {
+                        cell.setSelectable( true );
+                    }
+                    // TODO Once unit is placed, pop from list
+                }
                 break;
             }
             case LandingCheckPhase.DRAW_CARD: {

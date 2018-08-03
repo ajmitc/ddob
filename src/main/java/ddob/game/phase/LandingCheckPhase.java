@@ -1,6 +1,7 @@
 package ddob.game.phase;
 
 import ddob.game.Phase;
+import ddob.game.unit.USUnit;
 import ddob.game.unit.Unit;
 import ddob.game.board.Sector;
 
@@ -18,12 +19,16 @@ public abstract class LandingCheckPhase extends Phase {
     public static final int MAX_PROGRESS = 7;
 
     private Sector _sector;
-    private List<Unit> _playerPlacement;
+    private List<USUnit> _playerPlacementEast;
+    private List<USUnit> _playerPlacementWest;
+    private boolean _waitForUserSelection;
 
     public LandingCheckPhase( String name, Sector sector ) {
         super( name );
         _sector = sector;
-        _playerPlacement = new ArrayList<>();
+        _playerPlacementEast = new ArrayList<>();
+        _playerPlacementWest = new ArrayList<>();
+        _waitForUserSelection = false;
     }
 
     public void incProgress() {
@@ -32,5 +37,9 @@ public abstract class LandingCheckPhase extends Phase {
 
     public Sector getSector(){ return _sector; }
 
-    public List<Unit> getPlayerPlacement(){ return _playerPlacement; }
+    public List<USUnit> getPlayerPlacementEast(){ return _playerPlacementEast; }
+    public List<USUnit> getPlayerPlacementWest(){ return _playerPlacementWest; }
+
+    public boolean shouldWaitForUserSelection(){ return _waitForUserSelection; }
+    public void setWaitForUserSelection( boolean v ){ _waitForUserSelection = v; }
 }

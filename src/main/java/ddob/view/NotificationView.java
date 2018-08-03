@@ -1,17 +1,21 @@
 package ddob.view;
 
 import ddob.Model;
+import ddob.util.Util;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Each GameView represents a layer of the GamePanel.  For example, one GameView may be the map, another may be the
  * mini-map, another may be the Card/Phase, etc.
  */
-public abstract class NotificationView {
+public class NotificationView extends GameView {
 	public static final Color NOTIFICATION_BG_COLOR = Color.BLACK;
 	public static final Color NOTIFICATION_FG_COLOR = Color.WHITE;
 	public static final int MAX_TEXT_LENGTH = 30;
@@ -69,7 +73,7 @@ public abstract class NotificationView {
     public void redraw( Graphics2D g, Dimension panelSize ) {
 		// Draw notifications on screen
 		int turnTrackHeight = _view.getGamePanel().getTurnTrackView().getTurnTrackImage().getHeight( null );
-		int x = panelSize.getWidth() - 100; // centered-ish
+		int x = (int) panelSize.getWidth() - 100; // centered-ish
 		int y = turnTrackHeight + 3;
 		for( NotificationPanel panel: _panels ) {
 			panel.draw( g, x, y );

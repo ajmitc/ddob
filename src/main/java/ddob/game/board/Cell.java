@@ -26,6 +26,8 @@ public class Cell {
 	private List<Point> _attackPositionAdvanceCells;
 	private Map<Intensity, List<Point>> _attackPositionFieldOfFire;
 
+	private boolean _selectable;
+
     public Cell( int x, int y, List<CellType> types, String code ) {
         this( x, y, types, code, null, null, 0, new Point[]{}, new Point[]{}, new Point[]{}, new Point[]{} );
     }
@@ -57,6 +59,8 @@ public class Cell {
             _attackPositionFieldOfFire.get( Intensity.STEADY ).add( p );
         for( Point p: sporadic )
             _attackPositionFieldOfFire.get( Intensity.SPORADIC ).add( p );
+
+        _selectable = true;
 	}
 
 	public String getCode(){ return _code; }
@@ -94,4 +98,7 @@ public class Cell {
     public Map<Intensity, List<Point>> getAttackPositionFieldOfFire() {
         return _attackPositionFieldOfFire;
     }
+
+    public boolean isSelectable(){ return _selectable; }
+    public void setSelectable( boolean s ){ _selectable = s; }
 }

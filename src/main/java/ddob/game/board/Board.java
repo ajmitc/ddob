@@ -268,6 +268,29 @@ public class Board {
         }
 	}
 
+	public void disableCells() {
+	    CellVisitor visitor = new CellVisitor() {
+            @Override
+            public boolean visit( Cell cell ) {
+                cell.setSelectable( false );
+                return true;
+            }
+        };
+	    visitCells( visitor );
+    }
+
+    public void enableCells() {
+        CellVisitor visitor = new CellVisitor() {
+            @Override
+            public boolean visit( Cell cell ) {
+                cell.setSelectable( true );
+                return true;
+            }
+        };
+        visitCells( visitor );
+    }
+
+
     /**
      * Get the landing box with the given code/name
      * @param name
