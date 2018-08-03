@@ -25,14 +25,18 @@ import java.util.logging.Logger;
 public class GameManager implements Runnable{
     private Logger _logger = Logger.getLogger( GameManager.class.getName() );
 
+	private Model _model;
+	private View _view;
     private Game _game;
     private GamePanel _gamePanel;
     private ScheduledThreadPoolExecutor _threadPool;
     private boolean _stop;
 
-    public GameManager( Game game, GamePanel gamePanel ) {
-        _game = game;
-        _gamePanel = gamePanel;
+    public GameManager( Model model, View view ) {
+		_model = model;
+		_view = view;
+        _game = model.getGame();
+        _gamePanel = _view.getGamePanel();
         _gamePanel.setGameManager( this );
         _stop = false;
 
@@ -80,20 +84,31 @@ public class GameManager implements Runnable{
         switch( phaseProgress ) {
             case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
                 _logger.info( "   Place units in Landing Boxes" );
-                // TODO Only place Division applicable to this phase
+				_view.notifyInfo( "Landing Check " + phase.getSector() );
+                StringBuilder sb = new StringBuilder();
                 for (USUnit unit : turn.getArrivingUnits()) {
-                    // Place unit in landing box
-                    // If player has choice, add unit to next phase
-                    List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
-                    if( cells.size() > 1 ) {
-                        ((LandingCheckPhase) phase).getPlayerPlacement().add(unit);
-                    } else if( cells.size() == 1 ) {
-                        cells.get( 0 ).getUnits().add(unit);
-                    }
-                    else {
-                        _logger.severe( "Unable to get landing boxes for '" + unit.getLandingBox() + "'" );
-                    }
+					// Only place Division applicable to this phase
+					if( (phase.getSector() == Sector.EAST && unit.getDivision() == Division.US_1) ||
+					    (phase.getSector() == Sector.WEST && unit.getDivision() == Division.US_29) ) {
+                    	// Place unit in landing box
+                    	// If player has choice, add unit to next phase
+                    	List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
+                    	if( cells.size() > 1 ) {
+                        	((LandingCheckPhase) phase).getPlayerPlacement().add( unit );
+                    	} else if( cells.size() == 1 ) {
+	                        cells.get( 0 ).getUnits().add( unit );
+							sb.append( "Placed " + unit );
+							sb.append( " in " + cells.get( 0 ) );
+							sb.append( "\n" );
+    	                }
+        	            else {
+            	            _logger.severe( "Unable to get landing boxes for '" + unit.getLandingBox() + "'" );
+                	    }
+					}
                 }
+				if( !sb.toString().equals( "" ) ) {
+					_view.notifyInfoLong( sb.toString() );
+				}
                 phase.incProgress();
                 break;
             }
@@ -114,6 +129,7 @@ public class GameManager implements Runnable{
             }
             case LandingCheckPhase.APPLY_LANDING_CHECKS: {
                 _logger.info( "   Apply Landing Checks" );
+				StringBuilder sb = new StringBuilder();
                 for( Cell cell: _game.getBoard().getLandingBoxes( ((LandingCheckPhase) phase).getSector() ) ) {
                     List<Unit> toremove = new ArrayList<>();
                     for( Unit unit: cell.getUnits() ) {
@@ -122,17 +138,20 @@ public class GameManager implements Runnable{
                             case NO_EFFECT:
                                 break;
                             case DRIFT_ONE_BOX_EAST:
+								sb.append( unit + " drifted one box East" );
                                 Cell target = _game.getBoard().getRelativeLandingBox( cell, -1 );
                                 if( target != null ) {
                                     target.getUnits().add( unit );
                                 }
                                 else {
                                     // DELAY 1 Turn
+									sb.append( unit + " delayed 1 turn" );
                                     _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
                                 }
                                 toremove.add( unit );
                                 break;
                             case DELAYED_TWO_TURNS:
+								sb.append( unit + " delayed 2 turns" );
                                 _game.getFutureTurn( 2 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
                                 break;
@@ -143,6 +162,10 @@ public class GameManager implements Runnable{
                         cell.getUnits().remove( unit );
                     }
                 }
+				
+				if( !sb.toString().equals( "" ) ) {
+					_view.notifyInfoLong( sb.toString() );
+				}
                 phase.incProgress();
                 break;
             }

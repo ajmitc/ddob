@@ -61,11 +61,19 @@ public class View {
 	public void addNotification( Notification n ){ _notifications.add( n ); }
 	
 	public void notifyDebug( String content ) {
-		addNotification( new Notification( NotificationLevel.DEBUG, content ) );
+		addNotification( new Notification( NotificationLevel.DEBUG, content, Notification.LONG ) );
 	}
 	
 	public void notifyInfo( String content ) {
 		addNotification( new Notification( NotificationLevel.INFO, content ) );
+	}
+	
+	public void notifyInfo( String content, int duration ) {
+		addNotification( new Notification( NotificationLevel.INFO, content, duration ) );
+	}
+	
+	public void notifyInfoLong( String content ) {
+		addNotification( new Notification( NotificationLevel.INFO, content, Notification.LONG ) );
 	}
 	
 	public void notifyWarning( String content ) {
@@ -73,6 +81,6 @@ public class View {
 	}
 	
 	public void notifyError( String content ) {
-		addNotification( new Notification( NotificationLevel.ERROR, content ) );
+		addNotification( new Notification( NotificationLevel.ERROR, content, Notification.LONG ) );
 	}
 }
