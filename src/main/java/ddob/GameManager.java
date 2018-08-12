@@ -6,6 +6,7 @@ import ddob.game.board.Color;
 import ddob.game.card.Card;
 import ddob.game.event.Event;
 import ddob.game.event.EventHandler;
+import ddob.game.phase.EngineerPhase;
 import ddob.game.phase.EventPhase;
 import ddob.game.phase.GermanAttackPhase;
 import ddob.game.phase.LandingCheckPhase;
@@ -82,6 +83,14 @@ public class GameManager implements Runnable{
         int phaseProgress = phase.getProgress();
 
         switch( phaseProgress ) {
+            case LandingCheckPhase.RESET: {
+                ((LandingCheckPhase) phase).getPlayerPlacementWest().clear();
+                ((LandingCheckPhase) phase).getPlayerPlacementEast().clear();
+                ((LandingCheckPhase) phase).setWaitForUserSelection( false );
+                ((LandingCheckPhase) phase).setSelectedCell( null );
+                phase.incProgress();
+                break;
+            }
             case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
                 _logger.info( "   Place units in Landing Boxes" );
 				Sector sector = ((LandingCheckPhase) phase).getSector();
@@ -132,12 +141,23 @@ public class GameManager implements Runnable{
                     _view.notifyInfo( "Place " + sector );
                     StringBuilder sb = new StringBuilder();
                     USUnit unit = sector == Sector.EAST? lcp.getPlayerPlacementEast().get( 0 ): lcp.getPlayerPlacementWest().get( 0 );
+                    sb.append( "Place " + unit );
+                    sb.append( " in " + unit.getLandingBox() );
                     // Enable cells
                     List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
                     for( Cell cell : cells ) {
                         cell.setSelectable( true );
                     }
-                    // TODO Once unit is placed, pop from list
+                    lcp.setWaitForUserSelection( true );
+                    _view.getGamePanel().getBoardView().addBoardListener( BoardListenerType.CELL_SELECTED, lcp );
+                    _view.notifyInfoLong( sb.toString() );
+                }
+                else if( lcp.getSelectedCell() != null ) {
+                    // Once unit is placed, pop from list
+                    USUnit unit = sector == Sector.EAST? lcp.getPlayerPlacementEast().remove( 0 ): lcp.getPlayerPlacementWest().remove( 0 );
+                    lcp.getSelectedCell().getUnits().add( unit );
+                    lcp.setSelectedCell( null );
+                    lcp.setWaitForUserSelection( false );
                 }
                 break;
             }
@@ -176,6 +196,8 @@ public class GameManager implements Runnable{
                                 _game.getFutureTurn( 2 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
                                 break;
+                            default:
+                                _logger.warning( "Unsupported Landing Check: " + result );
                         }
                     }
 
@@ -255,14 +277,8 @@ public class GameManager implements Runnable{
     }
 
 
-    private void endPhase() {
-        _game.getCurrentTurn().getCurrentPhase().incProgress();
-        _game.getCurrentTurn().nextPhase();
-    }
-
-
     private void applyEvent( Event event ) {
-        EventHandler.handle( event, _game, _gamePanel );
+        EventHandler.handle( event, _model, _view );
     }
 
     private void handleGermanAttackPhase() {
@@ -356,20 +372,16 @@ public class GameManager implements Runnable{
     }
 
     private void handleGermanAttack(int turn, Sector sector, Color color, GermanActionSymbol actionSymbol, int minDepth, UnitSymbol unitSymbol ) {
-        List<Cell> cells = new ArrayList<>();
-        CellVisitor visitor = new CellVisitor() {
+        CellCollector collector = new CellCollector() {
             @Override
-            public boolean visit(Cell cell) {
-                if( cell.hasAttackPosition() && cell.getAttackPositionColor() == color ) {
-                    cells.add( cell );
-                }
-                return true;
+            public boolean shouldCollect(Cell cell) {
+                return cell.hasAttackPosition() && cell.getAttackPositionColor() == color;
             }
         };
-        _game.getBoard().visitCells( sector, visitor );
+        _game.getBoard().visitCells( sector, collector );
+        List<Cell> cells = collector.getCells();
 
         for( Cell cell: cells ) {
-
             if( cell.getUnits().size() == 0 ) {
                 // If actionsymbol is "A", then this may still be OK
                 if( turn < Game.BEYOND_THE_BEACH_START_TURN || actionSymbol != GermanActionSymbol.ADVANCE_AMBUSH_ARTILLERY ) {
@@ -383,12 +395,13 @@ public class GameManager implements Runnable{
             }
 
             // Make sure the german unit has sufficient depth
-            // this should not apply if the action symbol is "R", since the position may gain a depth marker
-            if( minDepth > 1 && (turn < Game.BEYOND_THE_BEACH_START_TURN || actionSymbol != GermanActionSymbol.RESUPPLY_REDEPLOY_REINFORCE_REOCCUPY) ) {
+            // this should not apply if the action symbol is "R" (and not playing FIRST WAVES), since the position may gain a depth marker
+            if( minDepth > 1 && (turn <= Game.BEYOND_THE_BEACH_START_TURN || actionSymbol != GermanActionSymbol.RESUPPLY_REDEPLOY_REINFORCE_REOCCUPY) ) {
                 boolean isOK = false;
                 for( Unit unit: cell.getUnits() ) {
                     if( ((GermanUnit) unit).getDepthMarker() != null ) {
                         isOK = true;
+                        break;
                     }
                 }
                 if( !isOK )
@@ -396,6 +409,10 @@ public class GameManager implements Runnable{
             }
 
             Map<Intensity, List<Cell>> fof = _game.getBoard().translateFieldOfFire( cell.getAttackPositionFieldOfFire() );
+
+            // Don't let the action symbol be null, default to FIRE
+            if( actionSymbol == null )
+                actionSymbol = GermanActionSymbol.FIRE;
 
             switch( actionSymbol ) {
                 case FIRE: {
@@ -499,4 +516,43 @@ public class GameManager implements Runnable{
                 break;
         }
     }
+
+
+    private void handleEngineerPhase() {
+        Turn turn = _game.getCurrentTurn();
+        Phase phase = turn.getCurrentPhase();
+        int phaseProgress = phase.getProgress();
+
+        switch (phaseProgress) {
+            case EngineerPhase.RESET_PHASE:
+            {
+                phase.incProgress();
+                break;
+            }
+            case EngineerPhase.PLAYER_ACTIONS:
+            {
+                if( turn.getNumber() < Game.BEYOND_THE_BEACH_START_TURN ) {
+                    // Clear beach
+                }
+                else {
+                    // Command Post/Engineer Bases
+                }
+                phase.incProgress();
+                break;
+            }
+            case EngineerPhase.END_PHASE:
+            {
+                endPhase();
+                break;
+            }
+        }
+    }
+
+
+    private void endPhase() {
+        _game.getCurrentTurn().getCurrentPhase().incProgress();
+        _game.getCurrentTurn().nextPhase();
+    }
+
+
 }

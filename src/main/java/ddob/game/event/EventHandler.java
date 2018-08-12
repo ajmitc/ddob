@@ -1,11 +1,13 @@
 package ddob.game.event;
 
+import ddob.Model;
 import ddob.game.Game;
 import ddob.view.GamePanel;
+import ddob.view.View;
 
 public class EventHandler {
 
-    public static void handle(Event event, Game game, GamePanel gamePanel ) {
+    public static void handle( Event event, Model model, View view ) {
         switch( event ) {
             // German artillery fire prevents engineer operations this turn (19.33)
             case ARTILLERY_PREVENTS_ENGINEER_OPS:

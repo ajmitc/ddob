@@ -77,13 +77,13 @@ public class Board {
     private static final Map<String, String> CELLCODES = new HashMap<>();
 
     static {
-        CELLCODES.put( "0128", "DG1" );
-        CELLCODES.put( "0129", "DG2" );
-        CELLCODES.put( "0130", "DG3" );
-        CELLCODES.put( "0131", "DG4" );
-        CELLCODES.put( "0132", "CH1" );
-        CELLCODES.put( "0133", "CH2" );
-        CELLCODES.put( "0134", "CH3" );
+        CELLCODES.put( "0127", "DG1" );
+        CELLCODES.put( "0128", "DG2" );
+        CELLCODES.put( "0129", "DG3" );
+        CELLCODES.put( "0130", "DG4" );
+        CELLCODES.put( "0131", "CH1" );
+        CELLCODES.put( "0132", "CH2" );
+        CELLCODES.put( "0133", "CH3" );
         CELLCODES.put( "0225", "DW2" );
         CELLCODES.put( "0226", "DW3" );
         CELLCODES.put( "0319", "EG1" );
@@ -128,7 +128,7 @@ public class Board {
         addLandingBoxDest( "0319", "0419", "0520", "0620" );
         addLandingBoxDest( "0320", "0420", "0521", "0621" );
         addLandingBoxDest( "0321", "0421", "0522", "0622" );
-        //DR
+        // DR
         addLandingBoxDest( "0322", "0422", "0523", "0623" );
         addLandingBoxDest( "0323", "0423", "0524", "0624" );
         addLandingBoxDest( "0324", "0424", "0525", "0625" );
@@ -148,14 +148,14 @@ public class Board {
     }
 
     private static void addLandingBoxDest( String lb, String lt, String mt, String ht ) {
-        int lby = Integer.parseInt( lb.substring( 0, 2 ) ) - 1;
-        int lbx = Integer.parseInt( lb.substring( 2, 4 ) ) - 1;
-        int lty = Integer.parseInt( lt.substring( 0, 2 ) ) - 1;
-        int ltx = Integer.parseInt( lt.substring( 2, 4 ) ) - 1;
-        int mty = Integer.parseInt( mt.substring( 0, 2 ) ) - 1;
-        int mtx = Integer.parseInt( mt.substring( 2, 4 ) ) - 1;
-        int hty = Integer.parseInt( ht.substring( 0, 2 ) ) - 1;
-        int htx = Integer.parseInt( ht.substring( 2, 4 ) ) - 1;
+        int lby = Integer.parseInt( lb.substring( 0, 2 ) );
+        int lbx = Integer.parseInt( lb.substring( 2, 4 ) );
+        int lty = Integer.parseInt( lt.substring( 0, 2 ) );
+        int ltx = Integer.parseInt( lt.substring( 2, 4 ) );
+        int mty = Integer.parseInt( mt.substring( 0, 2 ) );
+        int mtx = Integer.parseInt( mt.substring( 2, 4 ) );
+        int hty = Integer.parseInt( ht.substring( 0, 2 ) );
+        int htx = Integer.parseInt( ht.substring( 2, 4 ) );
         Point p = new Point( lbx, lby );
         LANDING_BOX_DESTINATIONS.put( p, new HashMap<>() );
         LANDING_BOX_DESTINATIONS.get( p ).put( Tide.LOW_TIDE,  new Point( ltx, lty ) );
@@ -206,8 +206,8 @@ public class Board {
      * @return
      */
     public Cell getByMapCoord( String coord ) {
-	    int y = Integer.decode( coord.substring( 0, 2 ) ) - 1;
-	    int x = Integer.decode( coord.substring( 2, 4 ) ) - 1;
+	    int y = Integer.decode( coord.substring( 0, 2 ) );
+	    int x = Integer.decode( coord.substring( 2, 4 ) );
         return get( x, y );
     }
 
@@ -215,10 +215,10 @@ public class Board {
         StringBuilder sb = new StringBuilder();
         if( yIndex < 9 )
             sb.append( "0" );
-        sb.append( yIndex + 1 );
+        sb.append( yIndex );
         if( xIndex < 9 )
             sb.append( "0" );
-        sb.append( xIndex + 1 );
+        sb.append( xIndex );
         return sb.toString();
     }
 
@@ -299,7 +299,7 @@ public class Board {
 	public List<Cell> getLandingBox( String name ) {
 	    List<Cell> ret = new ArrayList<>();
 	    for( Cell cell: _cells ) {
-            if( cell.getY() >= 4 )
+            if( cell.getY() > 4 )
                 break;
 	        if( cell.hasType( CellType.LANDING_BOX ) ) {
 	            if( cell.getCode().equals( name ) || cell.getCode().startsWith( name ) ) {
@@ -328,7 +328,7 @@ public class Board {
             if( cell.hasType( CellType.LANDING_BOX ) ) {
                 landingBoxes.add( cell );
             }
-            if( cell.getY() >= 4 )
+            if( cell.getY() > 4 )
                 break;
         }
 	    return landingBoxes;
@@ -360,7 +360,7 @@ public class Board {
                     }
                 }
             }
-            if( cell.getY() >= 4 )
+            if( cell.getY() > 4 )
                 break;
         }
         return landingBoxes;
@@ -387,7 +387,7 @@ public class Board {
             // Moving left, check next row up.  If the next row up is odd, add 1 to X
             while( true ) {
                 int y = origin.getY() + rowdelta;
-                if( y >= 4 )
+                if( y > 4 )
                     return null;  // Nope, didn't find it.
                 x = origin.getX() + vector;
                 if( y % 2 == 0 )
@@ -453,9 +453,9 @@ public class Board {
 	        celltypes[ j++ ] = CELLTYPES[ i ];
         }
 
-	    for( int y = 0; y < HEIGHT; ++y ) {
-	        for( int x = 0; x < WIDTH; ++x ) {
-	            if( y % 2 == 1 && x == WIDTH - 2 )
+	    for( int y = 1; y <= HEIGHT; ++y ) {
+	        for( int x = 1; x <= WIDTH; ++x ) {
+	            if( y % 2 == 0 && x == WIDTH - 1 )
 	                break;
 	            List<CellType> types = getCellType( x, y, celltypes );
                 String code = getCellCode( x, y );
@@ -467,7 +467,7 @@ public class Board {
 
     private List<CellType> getCellType( int x, int y, String[] celltypes ) {
         List<CellType> types = new ArrayList<>();
-        char c = celltypes[ y ].charAt( x );
+        char c = celltypes[ y - 1 ].charAt( x - 1 );
         switch( c ) {
             case 'w':
                 types.add( CellType.WATER );

@@ -62,9 +62,9 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 
         _gameViews = new ArrayList<>();
         _gameViews.add( _boardView );
-        _gameViews.add( _phaseView );
-        _gameViews.add( _turnView  );
-        _gameViews.add( _minimapView );
+        //_gameViews.add( _phaseView );
+        //_gameViews.add( _turnView  );
+        //_gameViews.add( _minimapView );
 		_gameViews.add( _notificationView );
         // Add additional views here
         _gameViews.add( _topGlassView );
@@ -250,5 +250,9 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 
     public TurnTrackView getTurnTrackView() {
         return _turnView;
+    }
+
+    public BoardGameView getBoardView() {
+        return _boardView;
     }
 }

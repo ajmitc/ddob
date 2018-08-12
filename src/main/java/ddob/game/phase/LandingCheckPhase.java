@@ -1,27 +1,31 @@
 package ddob.game.phase;
 
 import ddob.game.Phase;
+import ddob.game.board.BoardListener;
+import ddob.game.board.Cell;
 import ddob.game.unit.USUnit;
-import ddob.game.unit.Unit;
 import ddob.game.board.Sector;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class LandingCheckPhase extends Phase {
-    public static final int PLACE_UNITS_IN_LANDING_BOXES = 0;
-    public static final int PLAYER_PLACE_UNITS_IN_LANDING_BOXES = 1;
-    public static final int DRAW_CARD = 2;
-    public static final int APPLY_LANDING_CHECKS = 3;
-    public static final int CHECK_MINE_EXPLOSION = 4;
-    public static final int LAND_UNITS = 5;
-    public static final int END_PHASE = 6;
-    public static final int MAX_PROGRESS = 7;
+public abstract class LandingCheckPhase extends Phase implements BoardListener {
+    public static final int RESET = 0;
+    public static final int PLACE_UNITS_IN_LANDING_BOXES = 1;
+    public static final int PLAYER_PLACE_UNITS_IN_LANDING_BOXES = 2;
+    public static final int DRAW_CARD = 3;
+    public static final int APPLY_LANDING_CHECKS = 4;
+    public static final int CHECK_MINE_EXPLOSION = 5;
+    public static final int LAND_UNITS = 6;
+    public static final int END_PHASE = 7;
+    public static final int MAX_PROGRESS = 8;
 
     private Sector _sector;
     private List<USUnit> _playerPlacementEast;
     private List<USUnit> _playerPlacementWest;
     private boolean _waitForUserSelection;
+
+    private Cell _selectedCell;
 
     public LandingCheckPhase( String name, Sector sector ) {
         super( name );
@@ -30,6 +34,13 @@ public abstract class LandingCheckPhase extends Phase {
         _playerPlacementWest = new ArrayList<>();
         _waitForUserSelection = false;
     }
+
+    public void cellSelected( Cell cell, int x, int y ) {
+        if( cell != null && cell.isSelectable() )
+            _selectedCell = cell;
+    }
+
+    public boolean removeAfterTrigger() { return true; }
 
     public void incProgress() {
         _progress = (_progress + 1) % MAX_PROGRESS;
@@ -42,4 +53,7 @@ public abstract class LandingCheckPhase extends Phase {
 
     public boolean shouldWaitForUserSelection(){ return _waitForUserSelection; }
     public void setWaitForUserSelection( boolean v ){ _waitForUserSelection = v; }
+
+    public Cell getSelectedCell(){ return _selectedCell; }
+    public void setSelectedCell( Cell cell ){ _selectedCell = cell; }
 }
