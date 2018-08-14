@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener, ComponentListener{
     public static final long UPDATE_INTERVAL_MILLIS = 60;
@@ -36,6 +38,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     private TopGlassView _topGlassView;
 
     private boolean _showPeripheralViews;
+
+    private Lock _gameviewListLock;
 
     public GamePanel( Model model, View view ) {
         _model = model;
@@ -68,6 +72,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		_gameViews.add( _notificationView );
         // Add additional views here
         _gameViews.add( _topGlassView );
+
+        _gameviewListLock = new ReentrantLock();
     }
 
     public void start() {
@@ -86,107 +92,173 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void mouseClicked( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.mouseClicked( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.mouseClicked( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void mousePressed( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.mousePressed( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.mousePressed( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void mouseReleased( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.mouseReleased( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.mouseReleased( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void mouseMoved( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.mouseMoved( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.mouseMoved( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void mouseDragged( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.mouseDragged( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.mouseDragged( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void mouseEntered( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.mouseEntered( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.mouseEntered( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void mouseExited( MouseEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.mouseExited( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.mouseExited( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void keyPressed( KeyEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.keyPressed( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.keyPressed( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void keyReleased( KeyEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.keyReleased( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.keyReleased( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void keyTyped( KeyEvent e ) {
         if( !_allowEvents ) return;
-        for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-            GameView view = _gameViews.get( i );
-            if( !view.keyTyped( e ))
-                break;
+        _gameviewListLock.lock();
+        try {
+            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                GameView view = _gameViews.get( i );
+                if( !view.keyTyped( e ) )
+                    break;
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
     @Override
     public void componentResized( ComponentEvent e ) {
-        for( GameView view: _gameViews ) {
-            view.componentResized( e );
+        _gameviewListLock.lock();
+        try {
+            for( GameView view : _gameViews ) {
+                view.componentResized( e );
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
@@ -209,14 +281,20 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
         public void run() {
             // Work through the game views backward (top-down)
             List<GameView> remove = new ArrayList<>();
-            for( int i = _gameViews.size() - 1; i >= 0; --i ) {
-                GameView view = _gameViews.get( i );
-                view.update( UPDATE_INTERVAL_MILLIS );
-                if( view.shouldHide() )
-                    remove.add( view );
+            _gameviewListLock.lock();
+            try {
+                for( int i = _gameViews.size() - 1; i >= 0; --i ) {
+                    GameView view = _gameViews.get( i );
+                    view.update( UPDATE_INTERVAL_MILLIS );
+                    if( view.shouldHide() )
+                        remove.add( view );
+                }
+                for( GameView view : remove ) {
+                    _gameViews.remove( view );
+                }
             }
-            for( GameView view: remove ) {
-                _gameViews.remove( view );
+            finally {
+                _gameviewListLock.unlock();
             }
             repaint();
         }
@@ -226,8 +304,14 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
         Graphics2D g = (Graphics2D) gfx;
 
         // Update the views bottom-up (first on list is lowest layer)
-        for( GameView view: _gameViews ) {
-            view.redraw( g, this.getSize() );
+        _gameviewListLock.lock();
+        try {
+            for( GameView view : _gameViews ) {
+                view.redraw( g, this.getSize() );
+            }
+        }
+        finally {
+            _gameviewListLock.unlock();
         }
     }
 
@@ -241,7 +325,9 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 
 
     public void pushGameView( GameView gameView ) {
+        _gameviewListLock.lock();
         _gameViews.add( gameView );
+        _gameviewListLock.unlock();
     }
 
     public void setAllowEvents( boolean v ){ _allowEvents = v; }

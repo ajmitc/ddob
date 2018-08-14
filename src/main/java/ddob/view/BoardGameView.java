@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -48,6 +50,9 @@ public class BoardGameView extends GameView {
 
     private Cell _mouseHoverCell;
     private Timer _mouseHoverTimer;
+    private boolean _cellUnitsDisplayed;
+
+    private Lock _cellUnitsDisplayLock;
 
     public BoardGameView( Model model, View view, GamePanel gamePanel ) {
         super( model, view );
@@ -64,10 +69,12 @@ public class BoardGameView extends GameView {
 
         _keysPressed = new HashSet<>();
 
-        _debug = false;
+        _debug = true;
 
         _mouseHoverCell = null;
         _mouseHoverTimer = null;
+        _cellUnitsDisplayed = false;
+        _cellUnitsDisplayLock = new ReentrantLock();
     }
 
     @Override
@@ -80,24 +87,34 @@ public class BoardGameView extends GameView {
         _mpy = e.getY();
 
         Cell cell = getCellAtPixel( e.getX(), e.getY() );
-        _logger.info( "Get cell at [" + e.getX() + ", " + e.getY() + "]: " + cell );
-        if( cell != null && cell.getUnits().size() > 0 ){
-            _logger.info( "Hovering over cell " + cell );
-            if( _mouseHoverCell == null || _mouseHoverCell != cell ) {
-                if( _mouseHoverTimer != null ) {
-                    try {
-                        _mouseHoverTimer.cancel();
-                    }
-                    catch( Exception ex ) {
+        // If we're pointing at a cell and we're not displaying units already...
+        if( cell != null && !_cellUnitsDisplayed ) {
+            // if there are two or more units
+            // OR if there is one German Unit and it has depth
+            // then display the units
+            if( cell.getUnits().size() > 1 || (cell.getUnits().size() == 1 && cell.getUnits().get( 0 ) instanceof GermanUnit && ((GermanUnit) cell.getUnits().get( 0 )).getDepthMarker() != null) ) {
+                _cellUnitsDisplayLock.lock();
+                try {
+                    //_logger.info( "Hovering over cell " + cell + " (mouseHoverCell: " + _mouseHoverCell + ")" );
+                    if( _mouseHoverCell == null || _mouseHoverCell != cell ) {
+                        if( _mouseHoverTimer != null ) {
+                            try {
+                                _mouseHoverTimer.cancel();
+                                _mouseHoverTimer = null;
+                                _cellUnitsDisplayed = false;
+                            } catch( Exception ex ) {
 
+                            }
+                        }
+                        //_logger.info( "Starting hover timer at cell " + cell );
+                        _mouseHoverCell = cell;
+                        _mouseHoverTimer = new Timer();
+                        _mouseHoverTimer.schedule( new CellUnitsTimerTask( cell ), MOUSE_HOVER_SHOW_UNITS_DELAY );
                     }
                 }
-
-                _logger.info( "Started hover timer at cell " + cell );
-                _mouseHoverCell = cell;
-                // Start hover timer
-                _mouseHoverTimer = new Timer();
-                _mouseHoverTimer.schedule( new CellUnitsTimerTask( cell ), MOUSE_HOVER_SHOW_UNITS_DELAY );
+                finally {
+                    _cellUnitsDisplayLock.unlock();
+                }
             }
         }
 
@@ -281,10 +298,12 @@ public class BoardGameView extends GameView {
                 g.drawImage( image, null, ux, uy );
             }
 
+            /*
             if( _debug && unit.getDesignation().equals( "1/B/741" ) ) {
                 _logger.info( "Drawing " + unit + " at [" + cellX + ", " + cellY + "]" );
                 _logger.info( "Cell: " + cell.getX() + ", " + cell.getY() + " [" + cell.getCode() + "]" );
             }
+            */
         }
 
         // Draw Cell Info
@@ -334,7 +353,7 @@ public class BoardGameView extends GameView {
         }
         x /= CELL_WIDTH;
         x += 1;
-        _logger.info( "Getting cell " + x + ", " + y );
+        //_logger.info( "Getting cell " + x + ", " + y );
         return _model.getGame().getBoard().get( x, y );
     }
 
@@ -349,11 +368,24 @@ public class BoardGameView extends GameView {
 
         @Override
         public void run() {
-            _logger.info( "Displaying Unit Game View" );
-            CellUnitsGameView cellUnitsGameView = new CellUnitsGameView( _model, _view, _cell.getUnits(), _mpx, _mpy );
-            _view.getGamePanel().pushGameView( cellUnitsGameView );
-            _mouseHoverCell = null;
+            Cell cell = getCellAtPixel( _mpx, _mpy );
+            if( cell == _cell ) {
+                _cellUnitsDisplayLock.lock();
+                try {
+                    _logger.info( "Displaying Unit Game View" );
+                    CellUnitsGameView cellUnitsGameView = new CellUnitsGameView( _model, _view, _cell.getUnits(), _mpx, _mpy );
+                    _view.getGamePanel().pushGameView( cellUnitsGameView );
+                    _mouseHoverCell = null;
+                    _mouseHoverTimer = null;
+                    _cellUnitsDisplayed = true;
+                }
+                finally {
+                    _cellUnitsDisplayLock.unlock();
+                }
+            }
         }
     }
+
+    public void setCellUnitsDisplayed( boolean v ) { _cellUnitsDisplayed = v; }
 }
 
