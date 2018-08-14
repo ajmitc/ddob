@@ -14,6 +14,8 @@ public class Cell {
 	private int _y;
 	
 	private List<CellType> _types;
+	private Map<Direction, HexSideType>  _edges;
+	private RoadType _road;
 
 	private List<Unit> _units;
 
@@ -38,6 +40,10 @@ public class Cell {
 		_y = y;
 		_types = new ArrayList<>();
 		_types.addAll( types );
+		_edges = new HashMap<>( 6 );
+		for( Direction d: Direction.values() )
+		    _edges.put( d, HexSideType.OPEN );
+		_road = null;
 		_code = code;
 		_units = new ArrayList<>();
 		_cleared = false;
@@ -66,13 +72,33 @@ public class Cell {
 	public String getCode(){ return _code; }
 	public int getX(){ return _x; }
 	public int getY(){ return _y; }
-	public List<CellType> getTypes(){ return _types; }
 
+	public String getCoordString() {
+        StringBuilder sb = new StringBuilder();
+        if( _y < 10 )
+            sb.append( "0" );
+        sb.append( _y );
+        if( _x < 10 )
+            sb.append( "0" );
+        sb.append( _x );
+        return sb.toString();
+    }
+
+	public List<CellType> getTypes(){ return _types; }
 	public boolean hasType( CellType type ) {
         return _types.contains( type );
     }
 
-	public List<Unit> getUnits(){ return _units; }
+    public Map<Direction, HexSideType> getHexSides(){ return _edges; }
+    public HexSideType getHexSide( Direction direction ) {
+        return _edges.containsKey( direction )? _edges.get( direction ): null;
+    }
+
+    public RoadType getRoad() {
+        return _road;
+    }
+
+    public List<Unit> getUnits(){ return _units; }
 	public boolean isCleared(){ return _cleared; }
 
     public boolean hasAttackPosition() {
@@ -101,4 +127,11 @@ public class Cell {
 
     public boolean isSelectable(){ return _selectable; }
     public void setSelectable( boolean s ){ _selectable = s; }
+
+    public String toString() {
+        if( _code == null || _code.equals( "" ) )
+            return getCoordString();
+        return getCoordString() + " [" + _code + "]";
+    }
 }
+

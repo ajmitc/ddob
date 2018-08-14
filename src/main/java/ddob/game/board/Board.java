@@ -104,10 +104,24 @@ public class Board {
         CELLCODES.put( "0415", "ER4" );
         CELLCODES.put( "0416", "ER5" );
         CELLCODES.put( "0417", "ER6" );
-        CELLCODES.put( "0531", "WN 72N" );
-        CELLCODES.put( "0533", "WN 73" );
+        CELLCODES.put( "0807", "WN 60" );
+        CELLCODES.put( "0809", "WN 61" );
+        CELLCODES.put( "0912", "WN 62S" );
+        CELLCODES.put( "0812", "WN 62N" );
+        CELLCODES.put( "0916", "WN 64" );
+        CELLCODES.put( "0918", "WN 65S" );
+        CELLCODES.put( "0817", "WN 65N" );
+        CELLCODES.put( "0922", "WN 66S" );
+        CELLCODES.put( "0821", "WN 66N" );
+        CELLCODES.put( "1220", "WN 67" );
+        CELLCODES.put( "0823", "WN 68S" );
+        CELLCODES.put( "0723", "WN 68N" );
+        CELLCODES.put( "1222", "WN 69" );
+        CELLCODES.put( "0728", "WN 70" );
         CELLCODES.put( "0629", "WN 71" );
         CELLCODES.put( "0631", "WN 72S" );
+        CELLCODES.put( "0531", "WN 72N" );
+        CELLCODES.put( "0533", "WN 73" );
         CELLCODES.put( "0635", "G1" );
         // TODO Finish this
 
@@ -168,8 +182,17 @@ public class Board {
 
 	private List<Cell> _cells;
 
+    private boolean _germanArtilleryEast1352;
+    private boolean _germanArtilleryEastFlak;
+    private boolean _germanArtilleryWest1352;
+    private boolean _germanArtilleryWestFlak;
+
 	public Board() {
 		_cells = new ArrayList<>();
+        _germanArtilleryEast1352 = true;
+        _germanArtilleryEastFlak = true;
+        _germanArtilleryWest1352 = true;
+        _germanArtilleryWestFlak = true;
 		buildBoard();
 	}
 
@@ -211,14 +234,29 @@ public class Board {
         return get( x, y );
     }
 
-    public String toMapCoord( int xIndex, int yIndex ) {
+    public Cell getByCode( String code ) {
+        CellCollector visitor = new CellCollector() {
+            @Override
+            public boolean shouldCollect( Cell cell ) {
+                if( cell.getCode().equals( code ) ) {
+                    setContinueVisitingCells( false );
+                    return true;
+                }
+                return false;
+            }
+        };
+        visitCells( visitor );
+        return visitor.getCells().size() > 0? visitor.getCells().get( 0 ): null;
+    }
+
+    public String toMapCoord( int x, int y) {
         StringBuilder sb = new StringBuilder();
-        if( yIndex < 9 )
+        if( y < 10 )
             sb.append( "0" );
-        sb.append( yIndex );
-        if( xIndex < 9 )
+        sb.append( y );
+        if( x < 10 )
             sb.append( "0" );
-        sb.append( xIndex );
+        sb.append( x );
         return sb.toString();
     }
 
@@ -516,6 +554,38 @@ public class Board {
 	    if( CELLCODES.containsKey( mapCoord ) )
 	        return CELLCODES.get( mapCoord );
         return "";
+    }
+
+    public boolean hasGermanArtilleryEast1352() {
+        return _germanArtilleryEast1352;
+    }
+
+    public void setGermanArtilleryEast1352( boolean germanArtilleryEast1352 ) {
+        this._germanArtilleryEast1352 = germanArtilleryEast1352;
+    }
+
+    public boolean hasGermanArtilleryEastFlak() {
+        return _germanArtilleryEastFlak;
+    }
+
+    public void setGermanArtilleryEastFlak( boolean germanArtilleryEastFlak ) {
+        this._germanArtilleryEastFlak = germanArtilleryEastFlak;
+    }
+
+    public boolean hasGermanArtilleryWest1352() {
+        return _germanArtilleryWest1352;
+    }
+
+    public void setGermanArtilleryWest1352( boolean germanArtilleryWest1352 ) {
+        this._germanArtilleryWest1352 = germanArtilleryWest1352;
+    }
+
+    public boolean hasGermanArtilleryWestFlak() {
+        return _germanArtilleryWestFlak;
+    }
+
+    public void setGermanArtilleryWestFlak( boolean germanArtilleryWestFlak ) {
+        this._germanArtilleryWestFlak = germanArtilleryWestFlak;
     }
 }
 

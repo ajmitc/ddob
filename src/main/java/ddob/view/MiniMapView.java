@@ -28,7 +28,7 @@ public class MiniMapView extends GameView {
 
     @Override
     public boolean mouseClicked( MouseEvent e ) {
-        if( e.getX() > _minimapX && e.getY() > _minimapY ) {
+        if( e.getX() < _minimapX + _scaledMinimapImage.getWidth(  null ) && e.getY() > _minimapY ) {
             // Center board on mouse click
             int vpx = (int) (((double) (e.getX() - _minimapX)) / _scaleX);
             int vpy = (int) (((double) (e.getY() - _minimapY)) / _scaleY);
@@ -40,7 +40,7 @@ public class MiniMapView extends GameView {
 
     @Override
     public boolean mouseMoved( MouseEvent e ) {
-        if( e.getX() > _minimapX && e.getY() > _minimapY ) {
+        if( e.getX() < _minimapX + _scaledMinimapImage.getWidth( null ) && e.getY() > _minimapY ) {
             return false;
         }
         return true;
@@ -57,7 +57,7 @@ public class MiniMapView extends GameView {
     public void redraw( Graphics2D g, Dimension panelSize ) {
         if( !_view.getGamePanel().shouldShowPeripheralViews() )
             return;
-        int x = panelSize.width - MINI_MAP_WIDTH;
+        int x = 0; //panelSize.width - MINI_MAP_WIDTH;
         int y = panelSize.height - _scaledMinimapImage.getHeight( null );
         g.drawImage( _scaledMinimapImage, x, y, null );
 
@@ -73,3 +73,4 @@ public class MiniMapView extends GameView {
         _minimapY = y;
     }
 }
+
