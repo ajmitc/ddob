@@ -77,6 +77,14 @@ public class CellUnitsGameView extends GameView {
             }
         }
 
+        // Make sure the view fits on the screen
+        if( x + _w > panelSize.width ) {
+            x = panelSize.width - _w;
+        }
+        if( y + _h > panelSize.height ) {
+            y = panelSize.height - _h;
+        }
+
         g.setColor( BACKGROUND_COLOR );
         g.fillRect( x, y, _w, _h );
         int ux = x + BORDER_SPACING;

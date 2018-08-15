@@ -207,7 +207,7 @@ public class Board {
 			return null;
 		}
 		// jump ahead to speed up search
-		int index = Math.max( (y - 1) * 35, 0 ) + x;
+		int index = Math.max( (y - 2) * 35, 0 ) + x;
 		for( ; index < _cells.size(); ++index ) {
             Cell cell = _cells.get( index );
             if( cell.getX() == x && cell.getY() == y )

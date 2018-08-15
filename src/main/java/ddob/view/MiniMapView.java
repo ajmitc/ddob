@@ -69,6 +69,10 @@ public class MiniMapView extends GameView {
         int bh = (int) (((double) panelSize.height) * _scaleY );
         g.drawRect( x + bx, y + by, bw, bh );
 
+        g.setColor( Color.BLACK );
+        g.drawRect( x, y, _scaledMinimapImage.getWidth( null ), _scaledMinimapImage.getHeight( null ) );
+
+
         _minimapX = x;
         _minimapY = y;
     }

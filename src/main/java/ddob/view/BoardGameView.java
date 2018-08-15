@@ -87,6 +87,14 @@ public class BoardGameView extends GameView {
         _mpy = e.getY();
 
         Cell cell = getCellAtPixel( e.getX(), e.getY() );
+        if( cell != null )
+            _logger.info( cell.getCoordString() );
+        if( cell != null && cell.getCoordString().equals( "0723" ) ) {
+            _logger.info( "0723: Units: " + cell.getUnits().size() );
+            for( Unit unit: cell.getUnits() ) {
+                _logger.info( "0723 Unit: " + unit );
+            }
+        }
         // If we're pointing at a cell and we're not displaying units already...
         if( cell != null && !_cellUnitsDisplayed ) {
             // if there are two or more units
@@ -95,7 +103,7 @@ public class BoardGameView extends GameView {
             if( cell.getUnits().size() > 1 || (cell.getUnits().size() == 1 && cell.getUnits().get( 0 ) instanceof GermanUnit && ((GermanUnit) cell.getUnits().get( 0 )).getDepthMarker() != null) ) {
                 _cellUnitsDisplayLock.lock();
                 try {
-                    //_logger.info( "Hovering over cell " + cell + " (mouseHoverCell: " + _mouseHoverCell + ")" );
+                    _logger.info( "Hovering over cell " + cell + " (mouseHoverCell: " + _mouseHoverCell + ")" );
                     if( _mouseHoverCell == null || _mouseHoverCell != cell ) {
                         if( _mouseHoverTimer != null ) {
                             try {
