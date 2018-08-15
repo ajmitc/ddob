@@ -34,10 +34,19 @@ public class MainMenuPanel extends JPanel {
         buttonpanel.add( _btnNewGameExtended );
         buttonpanel.add( _btnExit );
 
-        setLayout( new GridLayout( 1, 2 ) );
+
+        //setLayout( new GridLayout( 1, 2 ) );
+        setLayout( new GridBagLayout() );
+
         JLabel coverImage = new JLabel( ImageFactory.getIcon( COVER_IMAGE ) );
-        add( coverImage );
-        add( buttonpanel );
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridwidth = 2;
+        add( coverImage, c );
+
+        c = new GridBagConstraints();
+        c.gridx = 2;
+        c.gridwidth = 1;
+        add( buttonpanel, c );
     }
 
     public JButton getBtnNewGameFirstWaves() {

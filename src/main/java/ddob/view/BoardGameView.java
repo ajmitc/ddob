@@ -7,6 +7,7 @@ import ddob.game.unit.GermanUnit;
 import ddob.game.unit.Unit;
 import ddob.game.unit.UnitType;
 import ddob.util.ImageFactory;
+import ddob.util.Util;
 
 import java.awt.*;
 import java.awt.Color;
@@ -32,6 +33,7 @@ public class BoardGameView extends GameView {
     private static final int CELL_HEIGHT = 100;
     private static final int UNIT_STACK_OFFSET = 5;
     private static final long MOUSE_HOVER_SHOW_UNITS_DELAY = 500;
+    private static final Font UNIT_NOTIFICATION_FONT = new Font( "Serif", Font.PLAIN, 12 );
 
     private Logger _logger = Logger.getLogger( BoardGameView.class.getName() );
     private GamePanel _gamePanel;
@@ -51,8 +53,10 @@ public class BoardGameView extends GameView {
     private Cell _mouseHoverCell;
     private Timer _mouseHoverTimer;
     private boolean _cellUnitsDisplayed;
-
     private Lock _cellUnitsDisplayLock;
+
+    private Map<Unit, List<Notification>> _unitNotifications;
+    private Lock _unitNotificationLock;
 
     public BoardGameView( Model model, View view, GamePanel gamePanel ) {
         super( model, view );
@@ -69,12 +73,15 @@ public class BoardGameView extends GameView {
 
         _keysPressed = new HashSet<>();
 
-        _debug = true;
+        _debug = false;
 
         _mouseHoverCell = null;
         _mouseHoverTimer = null;
         _cellUnitsDisplayed = false;
         _cellUnitsDisplayLock = new ReentrantLock();
+
+        _unitNotifications = new HashMap<>();
+        _unitNotificationLock = new ReentrantLock();
     }
 
     @Override
@@ -306,6 +313,35 @@ public class BoardGameView extends GameView {
                 g.drawImage( image, null, ux, uy );
             }
 
+            _unitNotificationLock.lock();
+            try {
+                if( _unitNotifications.containsKey( unit ) ) {
+                    int nx = ux + image.getWidth();
+                    int ny = uy;
+                    List<Notification> toremove = new ArrayList<>();
+                    List<Notification> notifications = _unitNotifications.get( unit );
+                    for( Notification notification : notifications ) {
+                        // Check if notification should be removed
+                        if( notification.shouldHide() ) {
+                            toremove.add( notification );
+                        } else {
+                            Dimension d = Util.calculateStringDimension( g, UNIT_NOTIFICATION_FONT, notification.getContent() );
+                            g.setColor( Color.BLACK );
+                            g.fillRect( nx, ny, d.width + 10, d.height + 10 );
+                            g.setColor( Color.WHITE );
+                            g.drawString( notification.getContent(), nx + 5, ny + 5 + d.height );
+                            ny += d.height + 10;
+                        }
+                    }
+                    for( Notification notification : toremove ) {
+                        notifications.remove( notification );
+                    }
+                }
+            }
+            finally {
+                _unitNotificationLock.unlock();
+            }
+
             /*
             if( _debug && unit.getDesignation().equals( "1/B/741" ) ) {
                 _logger.info( "Drawing " + unit + " at [" + cellX + ", " + cellY + "]" );
@@ -395,5 +431,19 @@ public class BoardGameView extends GameView {
     }
 
     public void setCellUnitsDisplayed( boolean v ) { _cellUnitsDisplayed = v; }
+
+    public Map<Unit, List<Notification>> getUnitNotifications(){ return _unitNotifications; }
+
+    public void addUnitNotification( Unit unit, String content ) {
+        _unitNotificationLock.lock();
+        try {
+            if( !_unitNotifications.containsKey( unit ) )
+                _unitNotifications.put( unit, new ArrayList<>() );
+            _unitNotifications.get( unit ).add( new Notification( NotificationLevel.INFO, content, Notification.DEFAULT ) );
+        }
+        finally {
+            _unitNotificationLock.unlock();
+        }
+    }
 }
 

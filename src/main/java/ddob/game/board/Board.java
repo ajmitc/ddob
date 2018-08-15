@@ -151,14 +151,19 @@ public class Board {
         addLandingBoxDest( "0225", "0326", "0426", "0527" );
         addLandingBoxDest( "0226", "0327", "0427", "0528" );
         // DG
-        addLandingBoxDest( "0128", "0227", "0328", "0428" );
-        addLandingBoxDest( "0129", "0228", "0329", "0429" );
-        addLandingBoxDest( "0130", "0229", "0330", "0430" );
-        addLandingBoxDest( "0131", "0230", "0331", "0431" );
+        addLandingBoxDest( "0127", "0227", "0328", "0428" );
+        addLandingBoxDest( "0128", "0228", "0329", "0429" );
+        addLandingBoxDest( "0129", "0229", "0330", "0430" );
+        addLandingBoxDest( "0130", "0230", "0331", "0431" );
         // CH
-        addLandingBoxDest( "0132", "0231", "0332", "0432" );
-        addLandingBoxDest( "0133", "0232", "0333", "0433" );
-        addLandingBoxDest( "0134", "0233", "0334", "0434" );
+        addLandingBoxDest( "0131", "0231", "0332", "0432" );
+        addLandingBoxDest( "0132", "0232", "0333", "0433" );
+        addLandingBoxDest( "0133", "0233", "0334", "0434" );
+        // Other
+        addLandingBoxDest( "0318", "0418", "0519", "0619" );
+        addLandingBoxDest( "0406", "0507", "0607", "" );
+        addLandingBoxDest( "0405", "0506", "0606", "" );
+        addLandingBoxDest( "0404", "0505", "0605", "" );
     }
 
     private static void addLandingBoxDest( String lb, String lt, String mt, String ht ) {
@@ -168,8 +173,12 @@ public class Board {
         int ltx = Integer.parseInt( lt.substring( 2, 4 ) );
         int mty = Integer.parseInt( mt.substring( 0, 2 ) );
         int mtx = Integer.parseInt( mt.substring( 2, 4 ) );
-        int hty = Integer.parseInt( ht.substring( 0, 2 ) );
-        int htx = Integer.parseInt( ht.substring( 2, 4 ) );
+        int hty = -1;
+        int htx = -1;
+        if( !ht.equals( "" ) ) {
+            hty = Integer.parseInt( ht.substring( 0, 2 ) );
+            htx = Integer.parseInt( ht.substring( 2, 4 ) );
+        }
         Point p = new Point( lbx, lby );
         LANDING_BOX_DESTINATIONS.put( p, new HashMap<>() );
         LANDING_BOX_DESTINATIONS.get( p ).put( Tide.LOW_TIDE,  new Point( ltx, lty ) );
@@ -466,8 +475,9 @@ public class Board {
 	 * @return
 	 */
 	public Cell getLandingBoxBeachHex( Cell landingBox, Tide tide ) {
-		Point cellLocation = LANDING_BOX_DESTINATIONS.get( landingBox.getCode() ).get( tide );
-		return get( cellLocation.x, cellLocation.y );
+	    Point lbpoint = new Point( landingBox.getX(), landingBox.getY() );
+        Point cellLocation = LANDING_BOX_DESTINATIONS.get( lbpoint ).get( tide );
+        return get( cellLocation.x, cellLocation.y );
 	}
 
 

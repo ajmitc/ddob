@@ -60,15 +60,17 @@ public class GameManager implements Runnable{
             } else if (phase.equals(Phase.GERMAN_ATTACK_EAST_PHASE) || phase.equals(Phase.GERMAN_ATTACK_WEST_PHASE)) {
                 handleGermanAttackPhase();
             } else if (phase.equals(Phase.ENGINEER_PHASE)) {
-
+                handleEngineerPhase();
             } else if (phase.equals(Phase.US_ACTIONS_EAST_PHASE) || phase.equals(Phase.US_ACTIONS_WEST_PHASE)) {
 
             } else if (phase.equals(Phase.END_TURN_PHASE)) {
-
+                _game.nextTurn();
             }
         }
         catch( Exception e ) {
             _logger.severe( "" + e );
+            e.printStackTrace();
+            stop();
         }
         finally {
             if (!_stop)
@@ -177,17 +179,20 @@ public class GameManager implements Runnable{
                         LandingCheckResult result = LandingCheckTable.get( turn.getNumber(), unit, phase.getCard() );
                         switch( result ) {
                             case NO_EFFECT:
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "No Effect" );
                                 break;
                             case DRIFT_ONE_BOX_EAST:
 								sb.append( unit + " drifted one box East" );
                                 Cell target = _game.getBoard().getRelativeLandingBox( cell, -1 );
                                 if( target != null ) {
                                     target.getUnits().add( unit );
+                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "Drifting 1 Box East" );
                                 }
                                 else {
                                     // DELAY 1 Turn
 									sb.append( unit + " delayed 1 turn" );
                                     _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
+                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 1 Turn" );
                                 }
                                 toremove.add( unit );
                                 break;
@@ -195,6 +200,7 @@ public class GameManager implements Runnable{
 								sb.append( unit + " delayed 2 turns" );
                                 _game.getFutureTurn( 2 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 2 Turns" );
                                 break;
                             default:
                                 _logger.warning( "Unsupported Landing Check: " + result );
