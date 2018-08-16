@@ -1,6 +1,6 @@
 package ddob;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import ddob.util.Util;
 import ddob.view.View;
@@ -10,10 +10,17 @@ import java.awt.event.WindowEvent;
 
 public class Main {
 	public static void main( String ... args ) {
+	    try {
+            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            ex.printStackTrace();
+        }
+
 		JFrame frame = new JFrame();
 		frame.setTitle( "D-Day On Omaha Beach" );
 		//frame.setSize( Util.getScreenSize() );
 		frame.setSize( frame.getGraphicsConfiguration().getBounds().getSize() );
+		frame.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
 		Model model = new Model();
 		View view = new View( model, frame );
 		Controller controller = new Controller( model, view );

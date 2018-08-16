@@ -26,11 +26,11 @@ public class BoardGameView extends GameView {
     public static final String BOARD_IMAGE_FILENAME = "Board_Main_Cropped"; // "Board_MainAlternate"
     private static final int EDGE_SCROLLING_THRESHOLD = 40;
     private static final int[] SCROLLING_SPEED = { 15, 10, 8, 6 };
-    private static final int CELL_OFFSET_Y = 20;
-    private static final int CELL_OFFSET_X_ODD = 38;
-    private static final int CELL_OFFSET_X_EVEN = 93;
-    private static final int CELL_WIDTH = 112;
-    private static final int CELL_HEIGHT = 100;
+    public static final int CELL_OFFSET_Y = 20;
+    public static final int CELL_OFFSET_X_ODD = 38;
+    public static final int CELL_OFFSET_X_EVEN = 93;
+    public static final int CELL_WIDTH = 112;
+    public static final int CELL_HEIGHT = 100;
     private static final int UNIT_STACK_OFFSET = 5;
     private static final long MOUSE_HOVER_SHOW_UNITS_DELAY = 500;
     private static final Font UNIT_NOTIFICATION_FONT = new Font( "Serif", Font.PLAIN, 12 );
@@ -94,12 +94,14 @@ public class BoardGameView extends GameView {
         _mpy = e.getY();
 
         Cell cell = getCellAtPixel( e.getX(), e.getY() );
-        if( cell != null )
-            _logger.info( cell.getCoordString() );
-        if( cell != null && cell.getCoordString().equals( "0723" ) ) {
-            _logger.info( "0723: Units: " + cell.getUnits().size() );
-            for( Unit unit: cell.getUnits() ) {
-                _logger.info( "0723 Unit: " + unit );
+        if( _debug ) {
+            if( cell != null )
+                _logger.info( cell.getCoordString() );
+            if( cell != null && cell.getCoordString().equals( "0723" ) ) {
+                _logger.info( "0723: Units: " + cell.getUnits().size() );
+                for( Unit unit : cell.getUnits() ) {
+                    _logger.info( "0723 Unit: " + unit );
+                }
             }
         }
         // If we're pointing at a cell and we're not displaying units already...
