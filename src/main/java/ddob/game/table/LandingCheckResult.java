@@ -2,6 +2,20 @@ package ddob.game.table;
 
 public enum LandingCheckResult {
     NO_EFFECT,
+    ELIMINATED,
+    LOSE_ONE_STEP,
+    LOSE_ONE_STEP_DRIFT_TWO_EAST,
+    LOSE_TWO_STEPS,
     DRIFT_ONE_BOX_EAST,
-    DELAYED_TWO_TURNS
+    DRIFT_TWO_BOXES_EAST,
+    DRIFT_THREE_BOXES_EAST,
+    DRIFT_FOUR_BOXES_EAST,
+    DRIFT_NINE_BOXES_EAST,
+    DRIFT_ONE_BOX_WEST,
+    DELAYED_ONE_TURN,
+    DELAYED_TWO_TURNS,
+    DELAYED_THREE_TURNS,
+
+    // Player may voluntarily drift 1-4 boxes east
+    PLAYER_DRIFT_1_4_BOXES_EAST
 }

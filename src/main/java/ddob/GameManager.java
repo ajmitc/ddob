@@ -176,31 +176,78 @@ public class GameManager implements Runnable{
                 for( Cell cell: _game.getBoard().getLandingBoxes( ((LandingCheckPhase) phase).getSector() ) ) {
                     List<Unit> toremove = new ArrayList<>();
                     for( Unit unit: cell.getUnits() ) {
-                        LandingCheckResult result = LandingCheckTable.get( turn.getNumber(), unit, phase.getCard() );
+                        LandingCheckResult result = LandingCheckTable.get( turn.getNumber(), unit, phase.getCard(), ((USUnit) unit).getLandingBox() );
                         switch( result ) {
                             case NO_EFFECT:
                                 _view.getGamePanel().getBoardView().addUnitNotification( unit, "No Effect" );
                                 break;
-                            case DRIFT_ONE_BOX_EAST:
-								sb.append( unit + " drifted one box East" );
-                                Cell target = _game.getBoard().getRelativeLandingBox( cell, -1 );
-                                if( target != null ) {
-                                    target.getUnits().add( unit );
-                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "Drifting 1 Box East" );
-                                }
-                                else {
-                                    // DELAY 1 Turn
-									sb.append( unit + " delayed 1 turn" );
-                                    _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
-                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 1 Turn" );
-                                }
+                            case ELIMINATED:
+                                sb.append( unit + " eliminated" );
                                 toremove.add( unit );
                                 break;
+                            case LOSE_ONE_STEP:
+                                if( !unit.loseSteps( 1 ) ) {
+                                    // Unit eliminated
+                                    sb.append( unit + " eliminated" );
+                                    toremove.add( unit );
+                                }
+                                break;
+                            case LOSE_ONE_STEP_DRIFT_TWO_EAST:
+                                if( !unit.loseSteps( 1 ) ) {
+                                    // Unit eliminated
+                                    sb.append( unit + " eliminated" );
+                                    toremove.add( unit );
+                                }
+                                else {
+                                    // Unit still alive, drive two East
+                                    driftUnit( unit, cell, -2, toremove, sb );
+                                }
+                                break;
+                            case LOSE_TWO_STEPS:
+                                if( !unit.loseSteps( 2 ) ) {
+                                    // Unit eliminated
+                                    sb.append( unit + " eliminated" );
+                                    toremove.add( unit );
+                                }
+                                break;
+                            case DRIFT_ONE_BOX_EAST:
+                                driftUnit( unit, cell, -1, toremove, sb );
+                                break;
+                            case DRIFT_TWO_BOXES_EAST:
+                                driftUnit( unit, cell, -2, toremove, sb );
+                                break;
+                            case DRIFT_THREE_BOXES_EAST:
+                                driftUnit( unit, cell, -3, toremove, sb );
+                                break;
+                            case DRIFT_FOUR_BOXES_EAST:
+                                driftUnit( unit, cell, -4, toremove, sb );
+                                break;
+                            case DRIFT_NINE_BOXES_EAST:
+                                driftUnit( unit, cell, -9, toremove, sb );
+                                break;
+                            case DRIFT_ONE_BOX_WEST:
+                                driftUnit( unit, cell, 1, toremove, sb );
+                                break;
+                            case DELAYED_ONE_TURN:
+                                sb.append( unit + " delayed 1 turns" );
+                                _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
+                                toremove.add( unit );
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 1 Turn" );
+                                break;
                             case DELAYED_TWO_TURNS:
-								sb.append( unit + " delayed 2 turns" );
+                                sb.append( unit + " delayed 2 turns" );
                                 _game.getFutureTurn( 2 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
                                 _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 2 Turns" );
+                                break;
+                            case DELAYED_THREE_TURNS:
+                                sb.append( unit + " delayed 3 turns" );
+                                _game.getFutureTurn( 3 ).getArrivingUnits().add( (USUnit) unit );
+                                toremove.add( unit );
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 3 Turns" );
+                                break;
+                            case PLAYER_DRIFT_1_4_BOXES_EAST:
+                                // TODO Player may voluntarily drift 1-4 boxes east
                                 break;
                             default:
                                 _logger.warning( "Unsupported Landing Check: " + result );
@@ -254,6 +301,22 @@ public class GameManager implements Runnable{
                 break;
             }
         }
+    }
+
+
+    private void driftUnit( Unit unit, Cell cell, int num, List<Unit> toremove, StringBuilder sb ) {
+        sb.append( unit + " drifted " + num + " " + (num == 1? "box": "boxes") + " " + (num < 0? "East": "West") );
+        Cell target = _game.getBoard().getRelativeLandingBox( cell, num );
+        if( target != null ) {
+            target.getUnits().add( unit );
+            _view.getGamePanel().getBoardView().addUnitNotification( unit, "Drifting " + num + " " + (num == 1? "Box": "Boxes") + " " + (num < 0? "East": "West") );
+        } else {
+            // DELAY 1 Turn
+            sb.append( unit + " delayed 1 turn" );
+            _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
+            _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 1 Turn" );
+        }
+        toremove.add( unit );
     }
 
 

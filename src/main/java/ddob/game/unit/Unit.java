@@ -50,6 +50,15 @@ public class Unit {
 		// TODO Implement me
 		return false;
 	}
+
+	/**
+	 *
+	 * @param numStepsLost
+	 * @return True if unit still alive, false if eliminated
+	 */
+	public boolean loseSteps( int numStepsLost ) {
+		return setStateByIndex( _unitStateIndex + numStepsLost );
+	}
 	
 	public boolean nextState() {
 		return setStateByIndex( _unitStateIndex + 1 );
