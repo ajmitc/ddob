@@ -136,7 +136,7 @@ public class MiniMapView extends GameView {
             g.fillRect( cellX, cellY, UNIT_SIZE, UNIT_SIZE );
             g.setColor( Color.BLACK );
             g.drawRect( cellX, cellY, UNIT_SIZE, UNIT_SIZE );
-            _logger.info( "Drawing minimap unit at [" + cellX + ", " + cellY + "]" );
+            //_logger.info( "Drawing minimap unit at [" + cellX + ", " + cellY + "]" );
         }
     }
 }

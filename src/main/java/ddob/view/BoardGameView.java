@@ -50,6 +50,8 @@ public class BoardGameView extends GameView {
 
     private boolean _debug;
 
+    private boolean _firstDraw;  // flag determining if this is the first time we've drawn the map
+
     private Cell _mouseHoverCell;
     private Timer _mouseHoverTimer;
     private boolean _cellUnitsDisplayed;
@@ -74,6 +76,8 @@ public class BoardGameView extends GameView {
         _keysPressed = new HashSet<>();
 
         _debug = false;
+
+        _firstDraw = true;
 
         _mouseHoverCell = null;
         _mouseHoverTimer = null;
@@ -198,6 +202,11 @@ public class BoardGameView extends GameView {
 
         if( _viewportSize == null )
             _viewportSize = new Dimension( panelSize.width, drawHeight );
+
+        if( _firstDraw ) {
+            center( _boardImage.getWidth() / 2, _boardImage.getHeight() );
+            _firstDraw = false;
+        }
 
         if( _allowEdgeScroll ) {
             // Scroll left
@@ -369,7 +378,6 @@ public class BoardGameView extends GameView {
         _vpx = x - (_viewportSize.width / 2);
         _vpy = y - (_viewportSize.height / 2);
     }
-
 
     public int getVpx(){ return _vpx; }
     public int getVpy(){ return _vpy; }

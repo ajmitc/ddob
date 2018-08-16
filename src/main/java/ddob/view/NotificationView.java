@@ -20,6 +20,7 @@ public class NotificationView extends GameView {
 	public static final Color NOTIFICATION_FG_COLOR = Color.WHITE;
 	public static final int MAX_TEXT_LENGTH = 30;
 	public static final Font FONT = new Font( "Serif", Font.PLAIN, 16 );
+	public static final int BORDER_SIZE = 5;
 	
 	public List<NotificationPanel> _panels;
 	
@@ -73,7 +74,7 @@ public class NotificationView extends GameView {
     public void redraw( Graphics2D g, Dimension panelSize ) {
 		// Draw notifications on screen
 		int turnTrackHeight = _view.getGamePanel().getTurnTrackView().getTurnTrackImage().getHeight( null );
-		int x = (int) panelSize.getWidth() - 100; // centered-ish
+		int x = (int) (panelSize.getWidth() / 2) - 100; // centered-ish
 		int y = turnTrackHeight + 3;
 		for( NotificationPanel panel: _panels ) {
 			panel.draw( g, x, y );
@@ -96,8 +97,8 @@ public class NotificationView extends GameView {
 		public void draw( Graphics2D g, int x, int y ) {
 			if( _width < 0 || _height < 0 ) {
 				Dimension textSize = Util.calculateStringDimension( g, FONT, _content, 2 );
-				_width = textSize.width;
-				_height = textSize.height;
+				_width = textSize.width + (BORDER_SIZE * 2);
+				_height = textSize.height + (BORDER_SIZE * 2);
 				_lineHeight = Util.getFontHeight( g, FONT ) + 2;
 			}
 			
@@ -105,7 +106,7 @@ public class NotificationView extends GameView {
 			g.fillRect( x, y, _width, _height );
 			g.setColor( NOTIFICATION_FG_COLOR );
 			for( String c: _content ) {
-				g.drawString( c, x, y );
+				g.drawString( c, x + BORDER_SIZE, y + _lineHeight + BORDER_SIZE );
 				y += _lineHeight;
 			}
 		}
@@ -114,3 +115,4 @@ public class NotificationView extends GameView {
 		public Notification getNotification(){ return _notification; }
 	}
 }
+

@@ -260,6 +260,7 @@ public class GameManager implements Runnable{
     private void handleEventPhase() {
         Turn turn = _game.getCurrentTurn();
         Phase phase = turn.getCurrentPhase();
+        _logger.info( "Handle " + phase.getName() );
         int phaseProgress = phase.getProgress();
 
         switch( phaseProgress ) {
@@ -290,6 +291,7 @@ public class GameManager implements Runnable{
     private void handleGermanAttackPhase() {
         Turn turn = _game.getCurrentTurn();
         Phase phase = turn.getCurrentPhase();
+        _logger.info( "Handle " + phase.getName() );
         int phaseProgress = phase.getProgress();
 
         switch (phaseProgress) {
@@ -527,6 +529,7 @@ public class GameManager implements Runnable{
     private void handleEngineerPhase() {
         Turn turn = _game.getCurrentTurn();
         Phase phase = turn.getCurrentPhase();
+        _logger.info( "Handle " + phase.getName() );
         int phaseProgress = phase.getProgress();
 
         switch (phaseProgress) {
