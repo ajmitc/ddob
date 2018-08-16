@@ -13,12 +13,13 @@ public abstract class LandingCheckPhase extends Phase implements BoardListener {
     public static final int RESET = 0;
     public static final int DRAW_CARD = 1;
     public static final int APPLY_LANDING_CHECKS = 2;
-    public static final int CHECK_MINE_EXPLOSION = 3;
-    public static final int LAND_UNITS = 4;
-    public static final int PLACE_UNITS_IN_LANDING_BOXES = 5;
-    public static final int PLAYER_PLACE_UNITS_IN_LANDING_BOXES = 6;
-    public static final int END_PHASE = 7;
-    public static final int MAX_PROGRESS = 8;
+    public static final int REMOVE_ELIMINATED = 3;
+    public static final int CHECK_MINE_EXPLOSION = 4;
+    public static final int LAND_UNITS = 5;
+    public static final int PLACE_UNITS_IN_LANDING_BOXES = 6;
+    public static final int PLAYER_PLACE_UNITS_IN_LANDING_BOXES = 7;
+    public static final int END_PHASE = 8;
+    public static final int MAX_PROGRESS = 9;
 
     private Sector _sector;
     private List<USUnit> _playerPlacementEast;

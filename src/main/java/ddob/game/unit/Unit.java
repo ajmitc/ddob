@@ -14,6 +14,7 @@ public class Unit {
 	private int _unitStateIndex;
 
 	private boolean _disrupted;
+	private boolean _eliminated;
 
 	public Unit( Allegiance allegiance, UnitType type, String designation ) {
 		_allegiance = allegiance;
@@ -21,6 +22,7 @@ public class Unit {
 		_designation = designation;
 		_unitStateIndex = 0;
 		_disrupted = false;
+		_eliminated = false;
 		_states = new ArrayList<>();
 	}
 	
@@ -43,6 +45,11 @@ public class Unit {
 
 	public void setDisrupted( boolean v ){ _disrupted = v; }
 
+	/**
+	 *
+	 * @param index
+	 * @return True if state exists, False otherwise
+	 */
     public boolean setStateByIndex( int index ) {
 		if( index >= 0 && index < _states.size() ) {
 			_unitStateIndex = index;
@@ -62,12 +69,12 @@ public class Unit {
 	 * @return True if unit still alive, false if eliminated
 	 */
 	public boolean loseSteps( int numStepsLost ) {
-		return setStateByIndex( _unitStateIndex + numStepsLost );
+		_eliminated = !setStateByIndex( _unitStateIndex + numStepsLost );
+		return !_eliminated;
 	}
 	
-	public boolean nextState() {
-		return setStateByIndex( _unitStateIndex + 1 );
-	}
+	public boolean isEliminated(){ return _eliminated; }
+	public void setEliminated( boolean v ){ _eliminated = v; }
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

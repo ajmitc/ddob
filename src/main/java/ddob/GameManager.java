@@ -51,6 +51,7 @@ public class GameManager implements Runnable{
     }
 
     public void run() {
+        int delayMillis = 1500;
         try {
             String phase = _game.getCurrentTurn().getCurrentPhase().getName();
             if (phase.equals(Phase.LANDING_CHECK_EAST_PHASE) || phase.equals(Phase.LANDING_CHECK_WEST_PHASE)) {
@@ -75,7 +76,7 @@ public class GameManager implements Runnable{
         }
         finally {
             if (!_stop)
-                _threadPool.schedule(this, 2, TimeUnit.SECONDS);
+                _threadPool.schedule(this, delayMillis, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -93,75 +94,6 @@ public class GameManager implements Runnable{
                 ((LandingCheckPhase) phase).setWaitForUserSelection( false );
                 ((LandingCheckPhase) phase).setSelectedCell( null );
                 phase.incProgress();
-                break;
-            }
-            case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
-                _logger.info( "   Place units in Landing Boxes" );
-				Sector sector = ((LandingCheckPhase) phase).getSector();
-                StringBuilder sb = new StringBuilder();
-                for (USUnit unit : turn.getArrivingUnits()) {
-					// Only place Division applicable to this phase
-					if( (sector == Sector.EAST && unit.getDivision() == Division.US_1) ||
-					    (sector == Sector.WEST && unit.getDivision() == Division.US_29) ) {
-                    	// Place unit in landing box
-                    	// If player has choice, add unit to next phase
-                    	List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
-                    	if( cells.size() > 1 ) {
-                    	    if( sector == Sector.EAST )
-                                ((LandingCheckPhase) phase).getPlayerPlacementEast().add( unit );
-                            else
-                                ((LandingCheckPhase) phase).getPlayerPlacementWest().add( unit );
-                    	} else if( cells.size() == 1 ) {
-	                        cells.get( 0 ).getUnits().add( unit );
-							sb.append( "Placed " + unit );
-							sb.append( " in " + cells.get( 0 ) );
-							sb.append( "\n" );
-    	                }
-        	            else {
-            	            _logger.severe( "Unable to get landing boxes for '" + unit.getLandingBox() + "'" );
-                	    }
-					}
-                }
-				if( !sb.toString().equals( "" ) ) {
-					_view.notifyInfoLong( sb.toString() );
-				}
-                phase.incProgress();
-                break;
-            }
-            case LandingCheckPhase.PLAYER_PLACE_UNITS_IN_LANDING_BOXES: {
-                _logger.info( "   Place units in Landing Boxes (Player)" );
-                // Once list is empty, goto next phase progress
-                LandingCheckPhase lcp = (LandingCheckPhase) phase;
-                Sector sector = lcp.getSector();
-                if( (sector == Sector.EAST && lcp.getPlayerPlacementEast().size() == 0) ||
-                    (sector == Sector.WEST && lcp.getPlayerPlacementWest().size() == 0) ) {
-                    lcp.setWaitForUserSelection( false );
-                    phase.incProgress();
-                }
-                else if( !lcp.shouldWaitForUserSelection() ) {
-                    // Only enable valid landing boxes for last unit
-                    _model.getGame().getBoard().disableCells();
-                    _view.notifyInfo( "Place " + sector );
-                    StringBuilder sb = new StringBuilder();
-                    USUnit unit = sector == Sector.EAST? lcp.getPlayerPlacementEast().get( 0 ): lcp.getPlayerPlacementWest().get( 0 );
-                    sb.append( "Place " + unit );
-                    sb.append( " in " + unit.getLandingBox() );
-                    // Enable cells
-                    List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
-                    for( Cell cell : cells ) {
-                        cell.setSelectable( true );
-                    }
-                    lcp.setWaitForUserSelection( true );
-                    _view.getGamePanel().getBoardView().addBoardListener( BoardListenerType.CELL_SELECTED, lcp );
-                    _view.notifyInfoLong( sb.toString() );
-                }
-                else if( lcp.getSelectedCell() != null ) {
-                    // Once unit is placed, pop from list
-                    USUnit unit = sector == Sector.EAST? lcp.getPlayerPlacementEast().remove( 0 ): lcp.getPlayerPlacementWest().remove( 0 );
-                    lcp.getSelectedCell().getUnits().add( unit );
-                    lcp.setSelectedCell( null );
-                    lcp.setWaitForUserSelection( false );
-                }
                 break;
             }
             case LandingCheckPhase.DRAW_CARD: {
@@ -182,21 +114,22 @@ public class GameManager implements Runnable{
                                 _view.getGamePanel().getBoardView().addUnitNotification( unit, "No Effect" );
                                 break;
                             case ELIMINATED:
+                                unit.setEliminated( true );
                                 _view.notifyInfoLong( unit + " eliminated" );
-                                toremove.add( unit );
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "ELIMINATED!" );
                                 break;
                             case LOSE_ONE_STEP:
                                 if( !unit.loseSteps( 1 ) ) {
                                     // Unit eliminated
                                     _view.notifyInfoLong( unit + " eliminated" );
-                                    toremove.add( unit );
+                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "ELIMINATED!" );
                                 }
                                 break;
                             case LOSE_ONE_STEP_DRIFT_TWO_EAST:
                                 if( !unit.loseSteps( 1 ) ) {
                                     // Unit eliminated
                                     _view.notifyInfoLong( unit + " eliminated" );
-                                    toremove.add( unit );
+                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "ELIMINATED!" );
                                 }
                                 else {
                                     // Unit still alive, drive two East
@@ -207,7 +140,7 @@ public class GameManager implements Runnable{
                                 if( !unit.loseSteps( 2 ) ) {
                                     // Unit eliminated
                                     _view.notifyInfoLong( unit + " eliminated" );
-                                    toremove.add( unit );
+                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "ELIMINATED!" );
                                 }
                                 break;
                             case DRIFT_ONE_BOX_EAST:
@@ -262,6 +195,23 @@ public class GameManager implements Runnable{
                 phase.incProgress();
                 break;
             }
+            case LandingCheckPhase.REMOVE_ELIMINATED: {
+                CellVisitor visitor = new CellVisitor() {
+                    @Override
+                    public boolean visit( Cell cell ) {
+                        List<Unit> toremove = new ArrayList<>();
+                        for( Unit unit: cell.getUnits() ) {
+                            if( unit.isEliminated() )
+                                toremove.add( unit );
+                        }
+                        for( Unit unit: toremove ) {
+                            cell.getUnits().remove( unit );
+                        }
+                        return true;
+                    }
+                };
+                _model.getGame().getBoard().visitCells( visitor );
+            }
             case LandingCheckPhase.CHECK_MINE_EXPLOSION: {
                 _logger.info( "   Check for mine explosion" );
                 if( turn.getNumber() < Game.MID_TIDE_TURN ) {
@@ -290,6 +240,75 @@ public class GameManager implements Runnable{
                     cell.getUnits().clear();
                 }
                 phase.incProgress();
+                break;
+            }
+            case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
+                _logger.info( "   Place units in Landing Boxes" );
+                Sector sector = ((LandingCheckPhase) phase).getSector();
+                StringBuilder sb = new StringBuilder();
+                for (USUnit unit : turn.getArrivingUnits()) {
+                    // Only place Division applicable to this phase
+                    if( (sector == Sector.EAST && unit.getDivision() == Division.US_1) ||
+                            (sector == Sector.WEST && unit.getDivision() == Division.US_29) ) {
+                        // Place unit in landing box
+                        // If player has choice, add unit to next phase
+                        List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
+                        if( cells.size() > 1 ) {
+                            if( sector == Sector.EAST )
+                                ((LandingCheckPhase) phase).getPlayerPlacementEast().add( unit );
+                            else
+                                ((LandingCheckPhase) phase).getPlayerPlacementWest().add( unit );
+                        } else if( cells.size() == 1 ) {
+                            cells.get( 0 ).getUnits().add( unit );
+                            sb.append( "Placed " + unit );
+                            sb.append( " in " + cells.get( 0 ) );
+                            sb.append( "\n" );
+                        }
+                        else {
+                            _logger.severe( "Unable to get landing boxes for '" + unit.getLandingBox() + "'" );
+                        }
+                    }
+                }
+                if( !sb.toString().equals( "" ) ) {
+                    _view.notifyInfoLong( sb.toString() );
+                }
+                phase.incProgress();
+                break;
+            }
+            case LandingCheckPhase.PLAYER_PLACE_UNITS_IN_LANDING_BOXES: {
+                _logger.info( "   Place units in Landing Boxes (Player)" );
+                // Once list is empty, goto next phase progress
+                LandingCheckPhase lcp = (LandingCheckPhase) phase;
+                Sector sector = lcp.getSector();
+                if( (sector == Sector.EAST && lcp.getPlayerPlacementEast().size() == 0) ||
+                        (sector == Sector.WEST && lcp.getPlayerPlacementWest().size() == 0) ) {
+                    lcp.setWaitForUserSelection( false );
+                    phase.incProgress();
+                }
+                else if( !lcp.shouldWaitForUserSelection() ) {
+                    // Only enable valid landing boxes for last unit
+                    _model.getGame().getBoard().disableCells();
+                    _view.notifyInfo( "Place " + sector );
+                    StringBuilder sb = new StringBuilder();
+                    USUnit unit = sector == Sector.EAST? lcp.getPlayerPlacementEast().get( 0 ): lcp.getPlayerPlacementWest().get( 0 );
+                    sb.append( "Place " + unit );
+                    sb.append( " in " + unit.getLandingBox() );
+                    // Enable cells
+                    List<Cell> cells = _game.getBoard().getLandingBox( unit.getLandingBox() );
+                    for( Cell cell : cells ) {
+                        cell.setSelectable( true );
+                    }
+                    lcp.setWaitForUserSelection( true );
+                    _view.getGamePanel().getBoardView().addBoardListener( BoardListenerType.CELL_SELECTED, lcp );
+                    _view.notifyInfoLong( sb.toString() );
+                }
+                else if( lcp.getSelectedCell() != null ) {
+                    // Once unit is placed, pop from list
+                    USUnit unit = sector == Sector.EAST? lcp.getPlayerPlacementEast().remove( 0 ): lcp.getPlayerPlacementWest().remove( 0 );
+                    lcp.getSelectedCell().getUnits().add( unit );
+                    lcp.setSelectedCell( null );
+                    lcp.setWaitForUserSelection( false );
+                }
                 break;
             }
             case LandingCheckPhase.END_PHASE: {
@@ -358,7 +377,8 @@ public class GameManager implements Runnable{
         switch (phaseProgress) {
             case GermanAttackPhase.RESET:
             {
-                _view.notifyInfoLong( "German Attack Phase" );
+                Sector sector = phase.getName().equals( Phase.GERMAN_ATTACK_EAST_PHASE)? Sector.EAST: Sector.WEST;
+                _view.notifyInfoLong( "German Attack " + sector );
                 CellVisitor visitor = new CellVisitor() {
                     @Override
                     public boolean visit( Cell cell ) {
@@ -567,6 +587,9 @@ public class GameManager implements Runnable{
                 Intensity.SPORADIC
         };
 
+        _view.notifyInfo( attackPosition.getUnits().get( 0 ) + " firing from " + attackPosition );
+        _view.getGamePanel().getBoardView().addUnitNotification( attackPosition.getUnits().get( 0 ), "Firing!" );
+
         for( Intensity intensity: intensityOrder ) {
             List<Cell> fieldOfFire = fof.get( intensity );
             for( Cell cell: fieldOfFire ) {
@@ -595,7 +618,11 @@ public class GameManager implements Runnable{
                         if( intensity == Intensity.INTENSE ) {
                             // Unit loses a step
                             _view.notifyInfo( unit + " has been hit by " + attackPosition.getUnits().get( 0 ) + " from " + cell );
-                            unit.nextState();
+                            _view.getGamePanel().getBoardView().addUnitNotification( unit, "HIT!" );
+                            if( !unit.loseSteps( 1 ) ) {
+                                _view.notifyInfo( unit + " has been eliminated!" );
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "ELIMINATED!" );
+                            }
                             --maxAttacks;
                             ((USUnit) unit).setHitThisTurn( true );
                         }
@@ -603,7 +630,11 @@ public class GameManager implements Runnable{
                             // Non-armored (unless armor bonus) units with same unit symbol lose a step
                             if( (unit.getState().getSymbol() == unitSymbol || concentratedTarget) && (!unit.getType().isArmored() || armorHitBonus) ) {
                                 _view.notifyInfo( unit + " has been hit by " + attackPosition.getUnits().get( 0 ) + " from " + cell );
-                                unit.nextState();
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "HIT!" );
+                                if( !unit.loseSteps( 1 ) ) {
+                                    _view.notifyInfo( unit + " has been eliminated!" );
+                                    _view.getGamePanel().getBoardView().addUnitNotification( unit, "ELIMINATED!" );
+                                }
                                 --maxAttacks;
                                 ((USUnit) unit).setHitThisTurn( true );
                             }
@@ -612,6 +643,7 @@ public class GameManager implements Runnable{
                             // Non-armored (unless armor bonus) units with same unit symbol are disrupted
                             if( (unit.getState().getSymbol() == unitSymbol || concentratedTarget) && (!unit.getType().isArmored() || armorHitBonus) ) {
                                 _view.notifyInfo( unit + " has been disrupted by " + attackPosition.getUnits().get( 0 ) + " from " + cell );
+                                _view.getGamePanel().getBoardView().addUnitNotification( unit, "DISRUPTED!" );
                                 unit.setDisrupted( true );
                                 --maxAttacks;
                                 ((USUnit) unit).setHitThisTurn( true );
