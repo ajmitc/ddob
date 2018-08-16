@@ -62,7 +62,8 @@ public class GameManager implements Runnable{
             } else if (phase.equals(Phase.ENGINEER_PHASE)) {
                 handleEngineerPhase();
             } else if (phase.equals(Phase.US_ACTIONS_EAST_PHASE) || phase.equals(Phase.US_ACTIONS_WEST_PHASE)) {
-
+                _view.notifyInfoLong( "US Action Phase (not yet implemented)" );
+                endPhase();
             } else if (phase.equals(Phase.END_TURN_PHASE)) {
                 _game.nextTurn();
             }
@@ -86,6 +87,7 @@ public class GameManager implements Runnable{
 
         switch( phaseProgress ) {
             case LandingCheckPhase.RESET: {
+                _view.notifyInfo( "Landing Check " + ((LandingCheckPhase) phase).getSector() );
                 ((LandingCheckPhase) phase).getPlayerPlacementWest().clear();
                 ((LandingCheckPhase) phase).getPlayerPlacementEast().clear();
                 ((LandingCheckPhase) phase).setWaitForUserSelection( false );
@@ -96,7 +98,6 @@ public class GameManager implements Runnable{
             case LandingCheckPhase.PLACE_UNITS_IN_LANDING_BOXES: {
                 _logger.info( "   Place units in Landing Boxes" );
 				Sector sector = ((LandingCheckPhase) phase).getSector();
-                _view.notifyInfo( "Landing Check " + sector );
                 StringBuilder sb = new StringBuilder();
                 for (USUnit unit : turn.getArrivingUnits()) {
 					// Only place Division applicable to this phase
@@ -172,7 +173,6 @@ public class GameManager implements Runnable{
             }
             case LandingCheckPhase.APPLY_LANDING_CHECKS: {
                 _logger.info( "   Apply Landing Checks" );
-				StringBuilder sb = new StringBuilder();
                 for( Cell cell: _game.getBoard().getLandingBoxes( ((LandingCheckPhase) phase).getSector() ) ) {
                     List<Unit> toremove = new ArrayList<>();
                     for( Unit unit: cell.getUnits() ) {
@@ -182,66 +182,66 @@ public class GameManager implements Runnable{
                                 _view.getGamePanel().getBoardView().addUnitNotification( unit, "No Effect" );
                                 break;
                             case ELIMINATED:
-                                sb.append( unit + " eliminated" );
+                                _view.notifyInfoLong( unit + " eliminated" );
                                 toremove.add( unit );
                                 break;
                             case LOSE_ONE_STEP:
                                 if( !unit.loseSteps( 1 ) ) {
                                     // Unit eliminated
-                                    sb.append( unit + " eliminated" );
+                                    _view.notifyInfoLong( unit + " eliminated" );
                                     toremove.add( unit );
                                 }
                                 break;
                             case LOSE_ONE_STEP_DRIFT_TWO_EAST:
                                 if( !unit.loseSteps( 1 ) ) {
                                     // Unit eliminated
-                                    sb.append( unit + " eliminated" );
+                                    _view.notifyInfoLong( unit + " eliminated" );
                                     toremove.add( unit );
                                 }
                                 else {
                                     // Unit still alive, drive two East
-                                    driftUnit( unit, cell, -2, toremove, sb );
+                                    driftUnit( unit, cell, -2, toremove );
                                 }
                                 break;
                             case LOSE_TWO_STEPS:
                                 if( !unit.loseSteps( 2 ) ) {
                                     // Unit eliminated
-                                    sb.append( unit + " eliminated" );
+                                    _view.notifyInfoLong( unit + " eliminated" );
                                     toremove.add( unit );
                                 }
                                 break;
                             case DRIFT_ONE_BOX_EAST:
-                                driftUnit( unit, cell, -1, toremove, sb );
+                                driftUnit( unit, cell, -1, toremove );
                                 break;
                             case DRIFT_TWO_BOXES_EAST:
-                                driftUnit( unit, cell, -2, toremove, sb );
+                                driftUnit( unit, cell, -2, toremove );
                                 break;
                             case DRIFT_THREE_BOXES_EAST:
-                                driftUnit( unit, cell, -3, toremove, sb );
+                                driftUnit( unit, cell, -3, toremove );
                                 break;
                             case DRIFT_FOUR_BOXES_EAST:
-                                driftUnit( unit, cell, -4, toremove, sb );
+                                driftUnit( unit, cell, -4, toremove );
                                 break;
                             case DRIFT_NINE_BOXES_EAST:
-                                driftUnit( unit, cell, -9, toremove, sb );
+                                driftUnit( unit, cell, -9, toremove );
                                 break;
                             case DRIFT_ONE_BOX_WEST:
-                                driftUnit( unit, cell, 1, toremove, sb );
+                                driftUnit( unit, cell, 1, toremove );
                                 break;
                             case DELAYED_ONE_TURN:
-                                sb.append( unit + " delayed 1 turns" );
+                                _view.notifyInfoLong( unit + " delayed 1 turn" );
                                 _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
                                 _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 1 Turn" );
                                 break;
                             case DELAYED_TWO_TURNS:
-                                sb.append( unit + " delayed 2 turns" );
+                                _view.notifyInfoLong( unit + " delayed 2 turns" );
                                 _game.getFutureTurn( 2 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
                                 _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 2 Turns" );
                                 break;
                             case DELAYED_THREE_TURNS:
-                                sb.append( unit + " delayed 3 turns" );
+                                _view.notifyInfoLong( unit + " delayed 3 turns" );
                                 _game.getFutureTurn( 3 ).getArrivingUnits().add( (USUnit) unit );
                                 toremove.add( unit );
                                 _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 3 Turns" );
@@ -259,9 +259,6 @@ public class GameManager implements Runnable{
                     }
                 }
 				
-				if( !sb.toString().equals( "" ) ) {
-					_view.notifyInfoLong( sb.toString() );
-				}
                 phase.incProgress();
                 break;
             }
@@ -304,15 +301,15 @@ public class GameManager implements Runnable{
     }
 
 
-    private void driftUnit( Unit unit, Cell cell, int num, List<Unit> toremove, StringBuilder sb ) {
-        sb.append( unit + " drifted " + num + " " + (num == 1? "box": "boxes") + " " + (num < 0? "East": "West") );
+    private void driftUnit( Unit unit, Cell cell, int num, List<Unit> toremove ) {
+        _view.notifyInfoLong( unit + " drifted " + num + " " + (num == 1? "box": "boxes") + " " + (num < 0? "East": "West")  );
         Cell target = _game.getBoard().getRelativeLandingBox( cell, num );
         if( target != null ) {
             target.getUnits().add( unit );
             _view.getGamePanel().getBoardView().addUnitNotification( unit, "Drifting " + num + " " + (num == 1? "Box": "Boxes") + " " + (num < 0? "East": "West") );
         } else {
             // DELAY 1 Turn
-            sb.append( unit + " delayed 1 turn" );
+            _view.notifyInfoLong( unit + " delayed 1 turn" );
             _game.getFutureTurn( 1 ).getArrivingUnits().add( (USUnit) unit );
             _view.getGamePanel().getBoardView().addUnitNotification( unit, "Delayed 1 Turn" );
         }
@@ -348,6 +345,7 @@ public class GameManager implements Runnable{
 
 
     private void applyEvent( Event event ) {
+        _view.notifyInfoLong( "Event Phase" );
         EventHandler.handle( event, _model, _view );
     }
 
@@ -358,6 +356,24 @@ public class GameManager implements Runnable{
         int phaseProgress = phase.getProgress();
 
         switch (phaseProgress) {
+            case GermanAttackPhase.RESET:
+            {
+                _view.notifyInfoLong( "German Attack Phase" );
+                CellVisitor visitor = new CellVisitor() {
+                    @Override
+                    public boolean visit( Cell cell ) {
+                        for( Unit unit: cell.getUnits() ) {
+                            if( unit.getAllegiance() == Allegiance.US ) {
+                                ((USUnit) unit).setHitThisTurn( false );
+                            }
+                        }
+                        return true;
+                    }
+                };
+                _model.getGame().getBoard().visitCells( visitor );
+                phase.incProgress();
+                break;
+            }
             case GermanAttackPhase.DRAW_CARD:
             {
                 Card card = _game.getDeck().draw();
@@ -425,6 +441,8 @@ public class GameManager implements Runnable{
                             if( unit.getAllegiance() == Allegiance.US ) {
                                 return true;
                             }
+                            if( unit.isDisrupted() )
+                                _view.notifyInfo( unit + " no longer disrupted" );
                             unit.setDisrupted( false );
                         }
                         return true;
@@ -548,32 +566,55 @@ public class GameManager implements Runnable{
                 Intensity.STEADY,
                 Intensity.SPORADIC
         };
+
         for( Intensity intensity: intensityOrder ) {
             List<Cell> fieldOfFire = fof.get( intensity );
             for( Cell cell: fieldOfFire ) {
+                if( cell.getUnits().size() == 0 )
+                    continue;
+
+                // Check for Concentrated Targets (5 or more steps within same cell)
+                int totalSteps = 0;
+                for( Unit unit: cell.getUnits() ) {
+                    totalSteps += unit.getSteps();
+                }
+
+                boolean concentratedTarget = totalSteps >= 5;
+
                 for( Unit unit: cell.getUnits() ) {
                     if( unit.getAllegiance() == Allegiance.US ) {
+
+                        // Don't let a unit get hit more than once per turn
+                        if( ((USUnit) unit).isHitThisTurn() )
+                            continue;
+
                         // Don't hit an HQ or General unless there is an HQ Hit Bonus
                         if( (unit.getType() == UnitType.HQ || unit.getType() == UnitType.GENERAL) && !hqHitBonus )
                             continue;
 
                         if( intensity == Intensity.INTENSE ) {
                             // Unit loses a step
+                            _view.notifyInfo( unit + " has been hit by " + attackPosition.getUnits().get( 0 ) + " from " + cell );
                             unit.nextState();
                             --maxAttacks;
+                            ((USUnit) unit).setHitThisTurn( true );
                         }
                         else if( intensity == Intensity.STEADY ) {
                             // Non-armored (unless armor bonus) units with same unit symbol lose a step
-                            if( unit.getState().getSymbol() == unitSymbol && (!unit.getType().isArmored() || armorHitBonus) ) {
+                            if( (unit.getState().getSymbol() == unitSymbol || concentratedTarget) && (!unit.getType().isArmored() || armorHitBonus) ) {
+                                _view.notifyInfo( unit + " has been hit by " + attackPosition.getUnits().get( 0 ) + " from " + cell );
                                 unit.nextState();
                                 --maxAttacks;
+                                ((USUnit) unit).setHitThisTurn( true );
                             }
                         }
                         else if( intensity == Intensity.STEADY ) {
                             // Non-armored (unless armor bonus) units with same unit symbol are disrupted
-                            if( unit.getState().getSymbol() == unitSymbol && (!unit.getType().isArmored() || armorHitBonus) ) {
+                            if( (unit.getState().getSymbol() == unitSymbol || concentratedTarget) && (!unit.getType().isArmored() || armorHitBonus) ) {
+                                _view.notifyInfo( unit + " has been disrupted by " + attackPosition.getUnits().get( 0 ) + " from " + cell );
                                 unit.setDisrupted( true );
                                 --maxAttacks;
+                                ((USUnit) unit).setHitThisTurn( true );
                             }
                         }
                     }
@@ -598,6 +639,7 @@ public class GameManager implements Runnable{
         switch (phaseProgress) {
             case EngineerPhase.RESET_PHASE:
             {
+                _view.notifyInfoLong( "Engineer Phase" );
                 phase.incProgress();
                 break;
             }

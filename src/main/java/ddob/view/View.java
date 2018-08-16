@@ -7,10 +7,13 @@ import javax.swing.JFrame;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class View {
     public static final String MAINMENU = "MainMenu";
     public static final String GAME = "Game";
+
+    private static final Logger _logger = Logger.getLogger( View.class.getName() );
 
 	private Model _model;
 	private JFrame _frame;
@@ -58,7 +61,10 @@ public class View {
     public GamePanel getGamePanel(){ return _gamePanel; }
 	
 	public List<Notification> getNotifications(){ return _notifications; }
-	public void addNotification( Notification n ){ _notifications.add( n ); }
+	public void addNotification( Notification n ){
+		_notifications.add( n );
+		_logger.info( n.getContent() );
+	}
 	
 	public void notifyDebug( String content ) {
 		addNotification( new Notification( NotificationLevel.DEBUG, content, Notification.LONG ) );

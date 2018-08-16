@@ -74,6 +74,7 @@ public class USUnit extends Unit {
     private int _arrivalTurn;
     private String _landingBox;
     private BufferedImage _heroImage; // if no hero, this should be null.
+    private boolean _hitThisTurn;  // has this unit been hit by german fire this turn?
 
     public USUnit( Division division, UnitType type, String designation, int arrivalTurn, String landingBox ) {
         super( Allegiance.US, type, designation );
@@ -81,6 +82,7 @@ public class USUnit extends Unit {
         _arrivalTurn = arrivalTurn;
         _landingBox = landingBox;
         _heroImage = null;
+        _hitThisTurn = false;
     }
 
     public Division getDivision() {
@@ -96,5 +98,8 @@ public class USUnit extends Unit {
     }
 
     public boolean hasHero() { return _heroImage != null; }
+
+    public boolean isHitThisTurn(){ return _hitThisTurn; }
+    public void setHitThisTurn( boolean v ) { _hitThisTurn = v; }
 }
 

@@ -34,6 +34,11 @@ public class Unit {
     public String getDesignation(){ return _designation; }
 	public List<UnitState> getStates(){ return _states; }
 	public UnitState getState(){ return _states.get( _unitStateIndex ); }
+
+	public int getSteps() {
+		return _states.size() - _unitStateIndex;
+	}
+
 	public boolean isDisrupted(){ return _disrupted; }
 
 	public void setDisrupted( boolean v ){ _disrupted = v; }

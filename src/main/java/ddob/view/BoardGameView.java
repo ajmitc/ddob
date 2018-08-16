@@ -116,7 +116,7 @@ public class BoardGameView extends GameView {
             if( cell.getUnits().size() > 1 || (cell.getUnits().size() == 1 && cell.getUnits().get( 0 ) instanceof GermanUnit && ((GermanUnit) cell.getUnits().get( 0 )).getDepthMarker() != null) ) {
                 _cellUnitsDisplayLock.lock();
                 try {
-                    _logger.info( "Hovering over cell " + cell + " (mouseHoverCell: " + _mouseHoverCell + ")" );
+                    //_logger.info( "Hovering over cell " + cell + " (mouseHoverCell: " + _mouseHoverCell + ")" );
                     if( _mouseHoverCell == null || _mouseHoverCell != cell ) {
                         if( _mouseHoverTimer != null ) {
                             try {

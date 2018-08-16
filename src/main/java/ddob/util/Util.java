@@ -48,15 +48,24 @@ public class Util {
 	}
 	
 	public static List<String> breakString( String s, int max_length ) {
+        String[] lines = s.split( "\n" );
 		List<String> parts = new ArrayList<>();
-		while( s.length() > max_length ) {
-			String part = s.substring( 0, max_length );
-			parts.add( part );
-			s = s.substring( max_length );
-		}
-		if( s.length() > 0 ) {
-			parts.add( s );	
-		}
+		for( String line: lines ) {
+            while( line.length() > max_length ) {
+                // Start at max_length character and work backward to find space
+                int index = max_length;
+                while( index >= 0 && line.charAt( index ) != ' ' && line.charAt( index ) != '\t' )
+                    --index;
+                if( index == 0 )
+                    index = max_length;
+                String part = line.substring( 0, index );
+                parts.add( part );
+                line = line.substring( index );
+            }
+            if( line.length() > 0 ) {
+                parts.add( line );
+            }
+        }
 		return parts;
 	}
 

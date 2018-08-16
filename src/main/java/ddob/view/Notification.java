@@ -12,14 +12,14 @@ public class Notification {
 	private String _content;
 	private long _timeToHide;
 	
-	public Notification( NotificationLevel level, String content, long timeToHide ) {
+	public Notification( NotificationLevel level, String content, long duration ) {
 		_level = level;
 		_content = content;
-		_timeToHide = timeToHide;
+		_timeToHide = new Date().getTime() + duration;
 	}
 	
 	public Notification( NotificationLevel level, String content ) {
-		this( level, content, new Date().getTime() + DEFAULT );
+		this( level, content, DEFAULT );
 	}
 	
 	public NotificationLevel getLevel(){ return _level; }
